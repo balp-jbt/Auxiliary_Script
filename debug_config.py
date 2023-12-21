@@ -4,6 +4,7 @@ import os
 # Singleton in Python to debug
 class DebugClass:
     _instance = None
+    _init_flag = False
 
     def __new__(cls, f_path=None):
         if cls._instance is None:
@@ -11,12 +12,14 @@ class DebugClass:
         return cls._instance
 
     def __init__(self, f_path=None):
-        self.blank_line = "\n"
-        self.title_len = 70
-        self.title_height = 2
-        self.content_cnt = 0
-        self.title_cnt = 0
-        self.f = None if f_path is None else open(f_path, 'w')
+        if not DebugClass._init_flag:
+            self.blank_line = "\n"
+            self.title_len = 70
+            self.title_height = 2
+            self.content_cnt = 0
+            self.title_cnt = 0
+            self.f = None if f_path is None else open(f_path, 'w')
+            DebugClass._init_flag = True
     
     def __del__(self):
         if self.f is not None:
@@ -25,6 +28,7 @@ class DebugClass:
     def change_file(self, f_path):
         if self.f is not None:
             self.f.close()
+        self.f = open(f_path, 'a')
         
     def cat_file(self):
         if self.f is not None:
@@ -61,10 +65,10 @@ class DebugClass:
             self.f.write("*" * self.title_len + "\n")
     
     def begin_function(self, function_name):
-        self.alert_content("Begin function " + function_name)
+        self.alert_content("Begin function " + function_name + "()")
             
     def end_function(self, function_name):
-        self.alert_content("End function " + function_name)
+        self.alert_content("End function " + function_name + "()")
 
 
 # Test for Singleton Mode
