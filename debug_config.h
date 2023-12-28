@@ -3,11 +3,13 @@
 
 extern int debug_content_cnt;
 extern int debug_title_cnt;
+extern int debug_fuction_call_order;
 
-#define LINE_LENGTH 50
-#define TITLE_LENGTH 30
-#define TITLE_BLANK_LINE 2
+#define TITLE_LENGTH 90
+#define TITLE_BLANK_LINE 3
 #define DEBUG_FILE_PATH "./debug.txt"
+#define FUNC_CALL_LINE  "  |  "
+#define SHOW_IDX false
 
 #define MIN(A, B) (((A) < (B)) ? (A) : (B))
 #define MAX(A, B) (((A) < (B)) ? (B) : (A))
@@ -42,10 +44,37 @@ inline void alert_content(const T& value, const Args&... args) {
     alert_content(args...);
 }
 
+inline void function_call_line() {
+    DEBUG_OPEN_FILE_INSTR;
+    for (int i = 0; i < debug_fuction_call_order; i++) {
+        outf << FUNC_CALL_LINE;
+    }
+    DEBUG_CLOSE_FILE_INSTR;
+}
+
 template <typename T, typename... Args>
 inline void alert_line(const T& value, const Args&... args) {
     DEBUG_OPEN_FILE_INSTR;
-    outf << debug_content_cnt++ << ":\t" << value;
+    function_call_line();
+    if (SHOW_IDX) {
+        outf << debug_content_cnt++ << "-";
+    } else {
+        debug_content_cnt++;
+    }
+    outf << value;
+    DEBUG_CLOSE_FILE_INSTR;
+    alert_content(args...);
+}
+
+template <typename T, typename... Args>
+inline void inner_alert_line(const T& value, const Args&... args) {
+    DEBUG_OPEN_FILE_INSTR;
+    if (SHOW_IDX) {
+        outf << debug_content_cnt++ << "-";
+    } else {
+        debug_content_cnt++;
+    }
+    outf << value;
     DEBUG_CLOSE_FILE_INSTR;
     alert_content(args...);
 }
@@ -85,12 +114,22 @@ inline void debug_cnt_reset() {
     debug_content_cnt = 0;
 }
 
-inline void begin_function(string name) {
-    alert_line("Begin Function:\t", name, "()\n");
+inline void begin_function(string name, int call_order=1) {
+    function_call_line();
+    debug_fuction_call_order += call_order;
+    inner_alert_line("Begin Function:  ");
+    alert_content(name, "()\n");
 }
 
-inline void end_function(string name) {
-     alert_line("End Function:\t", name ,"()\n");
+inline void end_function(string name, int exit_id=0, int call_order=-1) {
+    debug_fuction_call_order += call_order;
+    function_call_line();
+    inner_alert_line("End Function:  ");
+    if (!exit_id) {
+        alert_content(name ,"()\n");
+    } else {
+        alert_content(name, "()^^^^^^^^^^^^ ", exit_id, " ^^^^^^^^^^^^\n");
+    }
 }
 
 #endif
