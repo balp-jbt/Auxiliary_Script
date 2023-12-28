@@ -32,25 +32,22 @@ inline ofstream alert_assistant() {
     return outf;
 }
 
-template <class T>
-inline void alert_line(T content) {
+inline void alert_content() {};
+
+template <typename T, typename... Args>
+inline void alert_content(const T& value, const Args&... args) {
     DEBUG_OPEN_FILE_INSTR;
-    outf << debug_content_cnt++ << ":\t" << content << endl;
+    outf << value;
     DEBUG_CLOSE_FILE_INSTR;
+    alert_content(args...);
 }
 
-template <class T, class U>
-inline void alert_line(T content1, U content2) {
+template <typename T, typename... Args>
+inline void alert_line(const T& value, const Args&... args) {
     DEBUG_OPEN_FILE_INSTR;
-    outf << debug_content_cnt++ << ":\t" << content1 << content2 << endl;
+    outf << debug_content_cnt++ << ":\t" << value;
     DEBUG_CLOSE_FILE_INSTR;
-}
-
-template <class T, class U, class V>
-inline void alert_line(T content1, U content2, V content3) {
-    DEBUG_OPEN_FILE_INSTR;
-    outf << debug_content_cnt++ << ":\t" << content1 << content2 << content3 << endl;
-    DEBUG_CLOSE_FILE_INSTR;
+    alert_content(args...);
 }
 
 inline void blank_line() {
@@ -89,11 +86,11 @@ inline void debug_cnt_reset() {
 }
 
 inline void begin_function(string name) {
-    alert_line("Begin Function:\t" + name + "()");
+    alert_line("Begin Function:\t", name, "()\n");
 }
 
 inline void end_function(string name) {
-     alert_line("End Function:\t" + name + "()");
+     alert_line("End Function:\t", name ,"()\n");
 }
 
 #endif
