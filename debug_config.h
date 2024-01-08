@@ -117,7 +117,8 @@ inline void debug_cnt_reset() {
 inline void begin_function(string name, int entrance_id=0, int call_order=1) {
     function_call_line();
     debug_fuction_call_order += call_order;
-    inner_alert_line("Begin Function:  ");
+    //inner_alert_line("Begin Function:  ");
+    inner_alert_line("BF: ");
     if (!entrance_id) {
         alert_content(name, "()\n");
     } else {
@@ -128,7 +129,8 @@ inline void begin_function(string name, int entrance_id=0, int call_order=1) {
 inline void end_function(string name, int exit_id=0, int call_order=-1) {
     debug_fuction_call_order += call_order;
     function_call_line();
-    inner_alert_line("End Function:  ");
+    //inner_alert_line("End Function:  ");
+    inner_alert_line("EF: ");
     if (!exit_id) {
         alert_content(name ,"()\n");
     } else {
