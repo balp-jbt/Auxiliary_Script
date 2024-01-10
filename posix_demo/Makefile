@@ -1,19 +1,25 @@
 CXX := g++
-CXXFLAGS := -std=c++11
+CXXFLAGS := -Wall -std=c++17
 LDFLAGS := -lpthread
 
 SRC_DIR := src
 BUILD_DIR := build
 
-basic_example: $(SRC_DIR)/basic_example.cpp
-	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $(BUILD_DIR)/$@.exe
+all: Basic Producer_Consumer_Pattern
 
-producer_consumer_pattern: $(SRC_DIR)/producer_consumer_pattern.cpp
-	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $(BUILD_DIR)/$@.exe
+Basic: $(SRC_DIR)/Basic.cpp
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(BUILD_DIR)/$@.exe $^
 
-all: basic_example producer_consumer_pattern
+Producer_Consumer_Pattern: $(SRC_DIR)/Producer_Consumer_Pattern.cpp
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(BUILD_DIR)/$@.exe $^
+
+#Producer_Consumer_Pattern:
+#	g++ Producer_Consumer_Pattern.cpp -o 1.exe
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
 	rm -rf $(BUILD_DIR)/*
 
-.PHONY: all clean basic_example producer_consumer_pattern
+.PHONY: all Basic Producer_Consumer_Pattern
