@@ -13,9 +13,6 @@ Basic: $(SRC_DIR)/Basic.cpp
 Producer_Consumer_Pattern: $(SRC_DIR)/Producer_Consumer_Pattern.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(BUILD_DIR)/$@.exe $^
 
-#Producer_Consumer_Pattern:
-#	g++ Producer_Consumer_Pattern.cpp -o 1.exe
-
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
