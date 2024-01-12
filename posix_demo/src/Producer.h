@@ -12,10 +12,12 @@ private:
     pthread_mutex_t* buffer_lock;
     pthread_cond_t* buffer_produce_signal;
     pthread_cond_t* buffer_consume_signal;
+    int* exit_cond;
 
 public:
     Producer(Buffer<T>* buffer, pthread_mutex_t* buffer_lock, 
-        pthread_cond_t* buffer_produce_signal, pthread_cond_t* buffer_consume_signal);
+        pthread_cond_t* buffer_produce_signal, pthread_cond_t* buffer_consume_signal, 
+        int *exit_cond);
 
     static void* producer_thread_entrance(void* args);
 
