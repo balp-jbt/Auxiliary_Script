@@ -3,7 +3,7 @@
 #include "Producer.hpp"
 #include "Consumer.hpp"
 #include "Buffer.hpp"
-#include "Source.hpp"
+#include "Source.h"
 
 #define INIT_PARAMS &buffer, &buffer_lock, \
             &buffer_produce_signal, &buffer_consume_signal, &exit_cond

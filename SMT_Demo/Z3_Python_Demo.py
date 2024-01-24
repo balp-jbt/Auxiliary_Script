@@ -33,7 +33,7 @@ def solve_smt2_file(file_path):
 
     result = solver.check()
     print(result)
-    model = solver.model
+    model = solver.model()
     print(model)
 
 if __name__ == "__main__":

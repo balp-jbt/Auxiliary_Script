@@ -10,7 +10,7 @@ all: Basic Producer_Consumer_Pattern
 Basic: $(SRC_DIR)/Basic.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(BUILD_DIR)/$@.exe $^
 
-Producer_Consumer_Pattern: $(SRC_DIR)/Producer_Consumer_Pattern.cpp
+Producer_Consumer_Pattern: $(BUILD_DIR)/Producer_Consumer_Pattern.o $(BUILD_DIR)/Source.o 
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(BUILD_DIR)/$@.exe $^
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
