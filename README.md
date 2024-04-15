@@ -2,6 +2,7 @@
 
 ```json
 {
+    "Course_Note": "Note for one course about program verification",
     "Debug_Tool": "Two scripts to debug manually (and stupidly)",
     "Draw_Tool": "Script for drawing breakdown graph by using easypyplot",
     "Posix_Demo": "Simple demo for muti-thread programming using POSIX(<pthread.h>) in Unix",

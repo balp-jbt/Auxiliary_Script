@@ -9,7 +9,7 @@
 |    类型    |           全部符号 / 符号举例            |
 | :--------: | :--------------------------------------: |
 |  真值符号  |              $\top,\;\bot$               |
-| 逻辑连结词 | $\neg,\;\and,\or,\;\to\;\leftrightarrow$ |
+| 逻辑连结词 | $\neg,\;\wedge,\vee,\;\to\;\leftrightarrow$ |
 |  命题变元  |            $a,\;b,\;c\cdots$             |
 
 原子命题/原子公式：命题变元+真值符号
@@ -21,7 +21,7 @@
 |   类型2    |           全部符号 / 符号举例            |
 | :--------: | :--------------------------------------: |
 |  真值符号  |              $\top,\;\bot$               |
-| 逻辑连结词 | $\neg,\;\and,\or,\;\to\;\leftrightarrow$ |
+| 逻辑连结词 | $\neg,\;\wedge,\vee,\;\to\;\leftrightarrow$ |
 |  量词符号  |           $\forall,\;\exists$            |
 |  变元符号  |            $x,\;y,\;z\cdots$             |
 |  常元符号  |            $a,\;b,\;c\cdots$             |
@@ -90,7 +90,7 @@ $$
 
 其含义：前件是假设，后件是推论，前件均成立后，后件至少有一成立，即：
 $$
-F_1 \and F_2\and \cdots F_m \to G_1 \or G_2 \cdots G_n
+F_1 \wedge F_2\wedge \cdots F_m \to G_1 \vee G_2 \cdots G_n
 $$
 将想要证明的公式作为根节点，写在最下，依次根据推理规则进行推导，期间有可能有多个分支，直至最终证明完毕
 
@@ -155,32 +155,32 @@ $\mathcal{A}_E$：公理集合$\mathcal{A}$，引入"="的含义
 $$
 R_1 \circ R_2 = \{(a, b)\;|\; \exist c \in X, s.t. (a, c) \in R_1,\;(c, b) \in R_2\}
 $$
-基本思想：$[[st]]=\{(s,s')|\text{从}s\text{出发执行}st\text{可能会得到}s'\}$，语义为所有执行情况的状态对，$s$为前状态，$s'$为后状态，这里$[[st]]\sube \mathcal{S} \times \mathcal{S}$，是一个二元关系
+基本思想：$[[st]]=\{(s,s')\;|\;\text{从}s\text{出发执行}st\text{可能会得到}s'\}$，语义为所有执行情况的状态对，$s$为前状态，$s'$为后状态，这里$[[st]]\sube \mathcal{S} \times \mathcal{S}$，是一个二元关系
 
 语义等价： 对于任意状态$s\text{和}\; s'$，(s, s')\in [st_1]$当且仅当$(s, s')\in [st_2]$从，则称$st_1$与$​st_2$语义等价
 
 空语句语义：
 $$
-[[\textbf{skip}]]=\{(s,s)|\;s\in \mathcal{S} \}
+[[\textbf{skip}]]=\{(s,s)\;|\;s\in \mathcal{S} \}
 $$
 赋值语句语义：
 $$
-[[x:=e]]=\{(s,s')|\;s'= s[x \mapsto[[e]]_s] \}
+[[x:=e]]=\{(s,s')\;|\;s'= s[x \mapsto[[e]]_s] \}
 $$
 分支语句语义：
 $$
-[[\textbf{if}(p)\{st_1\}\; \textbf{else} \{st_2\}]]=\left \{(s, s')\Bigg |\; \begin{array} \;[[p]]_s=true \text{且} (s,s')\in [[st_1] \\ [[p]]_s = false \text{且} (s, s') \in [[st_2]]\end{array} \right \}
+[[\textbf{if}(p)\{st_1\}\; \textbf{else} \{st_2\}]]=\left \{(s, s')\;\Bigg |\; \begin{align*} \;[[p]]_s=true \text{且} (s,s')\in [[st_1]] \\\; [[p]]_s = false \text{且} (s, s') \in [[st_2]]\end{align*} \right\}
 $$
 顺序语句语义：
 $$
 \begin{align*}
 [[st_1;st_2]] &= [[st_1]] \circ [[st_2]] \\
-&= \{(s,s')|\;\text{存在}s''\text{使得}(s,s'')\in[[st_1]],[[s'', s']]\in [[st_2]]\}
+&= \{(s,s')\;|\;\text{存在}s''\text{使得}(s,s'')\in[[st_1]],[[s'', s']]\in [[st_2]]\}
 \end{align*}
 $$
 循环语句语义：
 $$
-[[\textbf{while}(p)\{st\}]]= \left \{ (s, s') \Bigg |\begin{align*}
+[[\textbf{while}(p)\{st\}]]= \left \{ (s, s') \;\Bigg |\;\begin{align*}
 & \text{存在一个整数和一组状态序列}t_0,t_1,\cdots\cdots,t_n,\text{其中}t_0=s，t_n=s',\text{使得}:\\
 & \text{(1)循环条件成立,即}[[p]]t_i=true,\;0 \leq i \leq n \\
 & \text{(2)循环体语句执行效果,即}(t_i,t_{i+1}) \in [[st]], \;0 \leq i \leq n \\
@@ -189,38 +189,63 @@ $$
 $$
 
 
-## 4 霍尔逻辑
 
-### 4.1 Hoare Triple
+## 4 霍尔证明系统
 
-1. 形如下式：$st$为程序，描述从任何满足$\varphi$的前状态执行$st$，<font color=red>若$st$终止</font>，则后状态必然满足$\psi$、
-   $$
-   \{\varphi\}\;\;st\;\;\{\psi\}
-   $$
+### 4.1  霍尔三元组
 
-2. **后像(post-image, equivlent to forward-image)** $R$为定义在$X$上的二元关系，$Y \subseteq X$是$X$的一个子集，则$Y$关于$R$的后像定义为
-   $$
-   post(Y,R)::=\{x\in X\;|\; \exists y \in Y s.t. (y,x) \in R \}
-   $$
-
-   * 语义解释：从$Y$状态集合出发，经由$st$语句(集合)，可达的状态集合
-
-3. **有效的霍尔三元组** 
-
-若$post(\{\varphi, [st]\}) \subseteq \{\psi\}$，则记作 $st\models(\varphi, \psi)$，称$st$满足规约$(\phi, \psi)$，也称霍尔三元组$\{\phi\}st\{\psi\}$是有效式，记作:
+霍尔三元组形式：式中$st$为程序
 $$
-\models\{\phi\}st\{\psi\}
+\{\varphi\}\;\;st\;\;\{\psi\}
 $$
+前置条件：逻辑公式$\varphi$，表示$st$​的前置条件，是某个一阶理论的$\Sigma_T$公式，是断言
+
+后置条件：逻辑公式$\psi$，表示$st$的后置条件，是某个一阶理论的$\Sigma_T$公式，是断言
+
+断言：设$\varphi$为一个断言，以$\{\varphi\}$表示满足$\varphi$ 的所有状态的集合，即(式中$\mathcal{M}$由公式对应一阶理论确定)
+$$
+\{\varphi\}::=\{s\;|\;[[\varphi]]_{\mathcal{M},s} = true\}
+$$
+
+
+霍尔三元组含义：从任何满足$\varphi$的前状态执行$st$，**若$st$终止**，则后状态一定满足$\psi$​
+
+后像：$R$为定义在$X$上的二元关系，$Y \subseteq X$是$X$的一个子集，则$Y$关于$R$的后像语义为从$Y$状态集合出发，经由$st$语句(集合)，可达的状态集合，形式化定义为
+$$
+post(Y,R)::=\{x\in X\;|\; \exists y \in Y,\; s.t. (y,x) \in R \}
+$$
+
+有效霍尔三元组 ：若$post(\{\varphi, [st]\}) \subseteq \{\psi\}$，则记作 $st\models(\varphi, \psi)$，**称$st$满足规约$(\varphi, \psi)$**，也称霍尔三元组$\{\varphi\}st\{\psi\}$是有效式，记作$\models\{\phi\}st\{\psi\}$​
 
 ### 4.2 霍尔证明系统
 
-> 推导有效霍尔三元组
+系统目的：推导有效霍尔三元组
 
-1. 推导树(derivatin tree)
-   * 每个节点都是霍尔三元组，中间节点是某条规则的结论，子节点是规则的前提
-2. 可推导
-   * 存在一颗为根的推导树，则称其为可推导
-3. 赋值语句的可靠性(逆向推导)
-4. 前提加强规则(前状态语义蕴含式可以作为新的前状态)
-5. 结论弱化规则(前提加强规则的反向
-6. 霍尔证明系统是可靠的，相对完备的
+推导规则：前提加强，结论弱化及赋值，分支，顺序，循环等规则
+
+前提加强和结论弱化规则：如图所示，若$A,\;B$为满足前置条件和后置条件的状态集合，若要证明$\{A\}st\{B\}$，我们只需证明实际上更大地前置状态集合都会经由$st$映射到更小的后置状态集合即可
+
+<img src="./data/1.jpg" alt="1" style="zoom:50%;" />
+
+循环不变式：首次到达循环头循环不变式$\varphi$必须成立，且迭代一次后$\varphi$也成立；生成合适的循环不变式是不可判定问题，导致程序验证为不可判定问题
+
+循环规则：将$\textbf{while}$​消去，只保留循环不变式及循环头条件，即由$\{\varphi\}\textbf{while}(p)\{st\}\{\varphi \wedge \neg p\}$推导为$\{\varphi \wedge p\}st\{\varphi\}$，式中$\varphi$为循环不变式；为应用循环规则需要首先为每个循环选择一个合适的循环不变式
+
+推导树：每个节点都是霍尔三元组，中间节点是某条规则的结论，子节点是规则的前提
+
+可推导的霍尔三元组：存在一颗以其为根的推导树，则称其为可推导
+
+可靠性及完备性：霍尔证明系统是可靠且相对完备的
+
+证明循环规则的正确性(对应《深入理解循环》章节): 引入测试语句，重复语句，从而修改循环语句的表示方式来表达
+
+重复语句：$st^*$表示不确定地执行$st$任意次，故该语句语义为$[[st^*]]=\bigvee_{i\in N}[[st]]^i$，其霍尔推理规则对应为$\{\varphi\} st^* \{\varphi\}$推导为$\{\varphi\}st\{\varphi\}$
+
+测试语句：$?p$表示不改变状态，若$p$成立则继续执行，否则终止执行(没有后状态)，其语义$[[?p]]=\{(s,s)\;|\;\models p\}$，推理规则为$\{\varphi\}?p\{\varphi \wedge p\}$推导出空语句
+
+循环的另一种表示：$\textbf{while}(p)\{st\}\equiv(?p;st)*;? \neg p$
+
+<font color=red>**[Qusetion] 为何在循环的两种语义中均要加上循环的退出条件，根据第一条语义不满足循环头条件时已经需要退出循环即进入后置状态了**</font>
+
+
+
