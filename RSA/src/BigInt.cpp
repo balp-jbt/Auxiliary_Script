@@ -22,10 +22,53 @@ BigInt::BigInt(base_t &data, bool is_positive) {
     (this -> data) -> push_back(unit);
 }
 
+BigInt::BigInt(BigInt* other) {
+    this->is_positive = other->is_positive;
+    this->data->resize(other->data->size());
+    for (size_t i = 0; i < other->data->size(); i++) {
+        (*this->data)[i] = (*other->data)[i];
+    }
+}
+
 BigInt::~BigInt() {
     delete this -> data;
 }
 
+int BigInt::compare(BigInt* other) {
+    if (this->data->size() > other->data->size()) {
+        return GT;
+    }
+    if (this->data->size() < other->data->size()) {
+        return LT;
+    }
+
+    for (size_t i = 0; i < this->data->size(); i++) {
+        if ((*this->data)[i] > (*other->data)[i]) {
+            return GT;
+        }
+        if ((*this->data)[i] < (*other->data)[i]) {
+            return LT;
+        }
+    }
+    return EQ;
+}
+
+size_t BigInt::get_bit_len() {
+    size_t res, offset = 0, mask = BASE_HIGH_MASK;
+    while (true) {
+        if ((*this->data)[0] & mask) {
+            break;
+        }
+        offset++;
+        mask = (mask >> 1);
+        #ifdef DEBUG_MODE_ON
+            assert(mask != 0);
+        #endif
+    }
+    res = BASE_WIDTH - offset;
+    res += (this->data->size() - 1) * BASE_WIDTH;
+    return res;
+}
 
 BigInt* BigInt::add(BigInt *other, bool is_in_place) {
     
@@ -103,6 +146,87 @@ BigInt* BigInt::mult(BigInt* other) {
     return res;
 }
 
+BigInt* BigInt::l_shift(size_t n, bool is_in_place) {
+    size_t unit_shift = n / BASE_WIDTH;
+    size_t part_shift = n % BASE_WIDTH;
+    
+    BigInt* res;
+    if (is_in_place) {
+        res = this;
+    } else {
+        res = new BigInt();
+    }
+
+    res->data->resize(this->data->size()+ unit_shift + 1);
+
+    (*res->data)[res->data->size()-1] = ((*this->data)[res->data->size()-unit_shift-2] >> (BASE_WIDTH-part_shift));
+    for (size_t i = res->data->size()-2; ; i--) {
+        if (i > unit_shift) {
+            (*res->data)[i] = ((*this->data)[i-unit_shift] << part_shift) | ((*this->data)[i-unit_shift-1] >> (BASE_WIDTH-part_shift));
+        } else if (i == unit_shift) {
+            (*res->data)[i] = ((*this->data)[i-unit_shift] << part_shift);
+        } else {
+            (*res->data)[i] = 0;
+        }
+        if (!i) {
+            break;
+        }
+    }
+
+    res->remove_leading_zero();
+    return res;
+}
+
+BigInt* BigInt::r_shift(size_t n, bool is_in_place) {
+    size_t unit_shift = n / BASE_WIDTH;
+    size_t part_shift = n % BASE_WIDTH;
+
+    BigInt* res;
+    if (is_in_place) {
+        res = this;
+    } else {
+        res = new BigInt();
+    }
+
+    res->data->resize(this->data->size());
+    for (size_t i = 0; i < res->data->size()-unit_shift; i++) {
+        if (this->data->size() > i+1+unit_shift) {
+            (*res->data)[i] = (((*this->data)[i+unit_shift]) >> part_shift) | (((*this->data)[i+unit_shift+1]) << (BASE_WIDTH-part_shift));
+        } else {
+            (*res->data)[i] = (((*this->data)[i+unit_shift]) >> part_shift);
+        }
+        
+    }
+    
+    if (is_in_place) {
+        this->data->resize(this->data->size() - unit_shift);
+    }
+
+    res->remove_leading_zero();
+    return res;
+}
+
+BigInt* BigInt::div(BigInt* other) {
+    // if (this->compare(other) == LT) {
+    //     base_t zero = 0;
+    //     BigInt res = BigInt(zero);
+    //     return &res;
+    // }
+
+    // vector<pair<BigInt*, BigInt*>> estimate;
+    // BigInt cur_judge = BigInt(other);
+    // base_t one = 1;
+    // BigInt cur_level(one);
+
+    // while (this->compare(other) == GT) {
+        
+    // }
+    
+}
+
+BigInt* BigInt::fast_power(BigInt* exponet) {
+    
+}
 
 #ifdef DEBUG_MODE_ON
 void BigInt::print_plain(string auxiliary_text) {

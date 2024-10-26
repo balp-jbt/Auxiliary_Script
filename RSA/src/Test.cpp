@@ -67,9 +67,77 @@ void mult_test() {
     z_res->print_plain("Here is the anwser3\n");
 }
 
+void l_shift_test() {
+    base_t w1 = 0b1000000000;
+    BigInt o1(w1);
+    BigInt* res;
+    res = o1.l_shift(1);
+    res -> print_plain("Basic situation, expect 0x0000_0000_0000_0400\n");
+
+    base_t a1 = 0xffffffffffffffff;
+    base_t a2 = 0xffffffffffffffff;
+    base_t a3 = 0xffffffffffffffff;
+    vector<base_t> data_a = {a3, a2, a1};
+    BigInt a(&data_a);
+    BigInt aa(&data_a);
+    a.print_plain("Before Shift\n");
+
+    res = a.l_shift(79);
+    res -> print_plain("Here is the answer1\n");
+    res = aa.l_shift(79, true); 
+    res -> print_plain("Here is the answer2\n");
+
+    base_t b1 = 0xefecdac3ffffffff;
+    base_t b2 = 0x65acee1affffffff;
+    base_t b3 = 0xffec998affffffff;
+    vector<base_t> data_b = {b3, b2, b1};
+    BigInt b(&data_b);
+    BigInt bb(&data_b);
+    res = b.l_shift(79);
+    res -> print_plain("Here is the answer3\n");
+    res = bb.l_shift(79, true); 
+    res -> print_plain("Here is the answer4\n");
+}
+
+void r_shift_test() {
+    base_t w1 = 0b1000000000;
+    BigInt o1(w1);
+    BigInt* res;
+    res = o1.r_shift(1);
+    res -> print_plain("Basic situation, expect 0x0000_0000_0000_0100\n");
+
+    base_t a1 = 0xffffffffffffffff;
+    base_t a2 = 0xffffffffffffffff;
+    base_t a3 = 0xffffffffffffffff;
+    vector<base_t> data_a = {a3, a2, a1};
+    BigInt a(&data_a);
+    BigInt aa(&data_a);
+    a.print_plain("Before Shift\n");
+
+    res = a.r_shift(79);
+    res -> print_plain("Here is the answer1\n");
+    res = aa.r_shift(79, true); 
+    res -> print_plain("Here is the answer2\n");
+
+    base_t b1 = 0xefecdac3ffffffff;
+    base_t b2 = 0x65acee1affffffff;
+    base_t b3 = 0xffec998affffffff;
+    vector<base_t> data_b = {b3, b2, b1};
+    BigInt b(&data_b);
+    BigInt bb(&data_b);
+    res = b.r_shift(79);
+    res -> print_plain("Here is the answer3\n");
+    res = bb.r_shift(79, true); 
+    res -> print_plain("Here is the answer4\n");
+}
+
 int main () {
     add_test();
-    cout << "GAP" << endl << endl << endl;
+    cout << endl << endl << "================ GAP ================" << endl << endl << endl;
     mult_test();
+    cout << endl << endl << "================ GAP ================" << endl << endl << endl;
+    l_shift_test();
+    cout << endl << endl << "================ GAP ================" << endl << endl << endl;
+    r_shift_test();
     return 0;
 }

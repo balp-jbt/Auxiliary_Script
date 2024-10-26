@@ -11,29 +11,34 @@ public:
     BigInt(bool is_positive = true);                     
     BigInt(vector<base_t> *data, bool is_positive = true);
     BigInt(base_t &data, bool is_positive = true);        
+    BigInt(BigInt* other);
 
     ~BigInt();
 
     // Fundamental operations (BigInt.cpp)
+    int compare(BigInt* other);
+
+    size_t get_bit_len();
 
     //pre-condition: this and other should be positive and this.size >= other.size
+    // NOTE: if is_in_place, result needs to be deleted manually
     BigInt* add(BigInt *other, bool is_in_place = false);
 
     //pre-condition: this and other should be positive and this.size >= other.size
+    // NOTE: result needs to be deleted manually
     BigInt* mult(BigInt *other);
 
-    BigInt operator*(const BigInt &other);
-    BigInt operator/(const BigInt &other) const;
-    BigInt operator%(const BigInt &other) const;
+    BigInt* l_shift(size_t n, bool is_in_place = false);
 
-    bool operator<(const BigInt &other) const;
-    bool operator>(const BigInt &other) const;
-    bool operator==(const BigInt &other) const;
-    bool operator!=(const BigInt &other) const;
+    BigInt* r_shift(size_t n, bool is_in_place = false);
+
+    BigInt* div(BigInt *other);
+
+    BigInt operator%(const BigInt &other) const;
 
     void print() const;
 
-    BigInt fast_power(BigInt exponet);
+    BigInt* fast_power(BigInt* exponet);
 
     void remove_leading_zero();
 
@@ -43,14 +48,26 @@ public:
 
     // Other support operations (BigInt_RSA_Operation.cpp)
     BigInt(string *data);
-    
-    BigInt generate_prime(size_t bit_len);
+
+    BigInt* modularExponentiation(BigInt* pow, BigInt* base);
+
+    // NOTE: result needs to be deleted manually
+    BigInt* generate_random_given_len(size_t but_len);
+
+    BigInt* generate_prime(size_t bit_len);
 
     BigInt extend_gcd(BigInt p, BigInt q);
 
-    bool miller_rabin(BigInt target, int k);
+    bool miller_rabin_test(BigInt* target, int threshold=MILLER_RABIN_THRESHOLD);
 
     
 };
+
+base_t _zero = 0;
+base_t _one = 1;
+base_t _two = 2;
+BigInt big_zero(_zero);
+BigInt big_one(_one);
+BigInt big_two(_two);
 
 #endif

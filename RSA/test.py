@@ -32,3 +32,22 @@ print(hex(a*b-0xfffffffffffffffffffffffffffffffe00000000000000000000000000000001
 
 #print(hex(0xffffffffffffffff * 0xffffffffffffffff))
 #print(hex(0xffffffffffffffffffffffffffffffff * 0xffffffffffffffff))
+
+a1 = 0xffffffffffffffffffffffffffffffffffffffffffffffff
+print(hex(a1 << 79))
+print(hex(0x0000000000007fffffffffffffffffffffffffffffffffffffffffffffff80000000000000000000 - (a1<<79)))
+
+0x7fffffffffffffffffffffffffffffffffffffffffffffff80000000000000000000
+# 0x7fffffffffffffffffff / 0000_0000_0000_0000 / ffff_ffff_ffff_8000 / 0000_0000_0000_0000
+
+
+a1 = 0xefecdac3ffffffff65acee1affffffffffec998affffffff
+print(hex(0x00000000000077f66d61ffffffffb2d6770d7ffffffffff64cc57fffffff80000000000000000000-(a1<<79)))
+
+a1 = 0xffffffffffffffffffffffffffffffffffffffffffffffff
+print(hex(0x1ffffffffffffffffffffffffffff - (a1>>79)))
+print(hex(0x1ffffffffffffffffffffffffffff - (a1>>79)))
+
+a1 = 0xefecdac3ffffffff65acee1affffffffffec998affffffff
+print(hex(0x1dfd9b587fffffffecb59dc35ffff - (a1>>79)))
+print(hex(0x1dfd9b587fffffffecb59dc35ffff - (a1>>79)))
