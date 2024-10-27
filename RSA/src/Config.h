@@ -9,7 +9,7 @@
 // BigInt
 #define BASE_WIDTH 64
 #define BASE_MASK UINT64_MAX
-#define BASE_HIGH_MASK (1 << (BASE_WIDTH-1))
+#define BASE_HIGH_MASK ((base_t)1 << (BASE_WIDTH-1))
 
 #define EQ 0
 #define GT 1

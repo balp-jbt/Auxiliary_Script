@@ -28,6 +28,35 @@ void add_test() {
     f->print_plain("Here is the anwser2\n");
 }
 
+void sub_test() {
+
+    base_t a1 = 0xefecdac3ffffffff;
+    base_t a2 = 0x65acee1affffffff;
+    base_t a3 = 0xffec998affffffff;
+
+    base_t b1 = 0xffffffffffffffff;
+    base_t b2 = 0xffffffffffffffff;
+
+    vector<base_t> data_a = {a3, a2, a1}, data_b = {b2, b1};
+
+    BigInt a(&data_a);
+    a.print_plain("Here is the a\n");
+
+    BigInt b(&data_b);
+    b.print_plain("Here is the b\n");
+
+    BigInt* c = a.sub(&b);
+    c->print_plain("Here is the anwser1\n");
+
+    base_t d1 = 0xffffffffffffffff;
+    base_t e1 = 0xffffffffffffffff;
+    BigInt d(d1);
+    BigInt e(e1);
+    BigInt* f = d.sub(&e);
+    f->print_plain("Here is the anwser2\n");
+}
+
+
 void mult_test() {
     base_t w1 = 0x13;
     base_t w2 = 0x13;
@@ -139,5 +168,7 @@ int main () {
     l_shift_test();
     cout << endl << endl << "================ GAP ================" << endl << endl << endl;
     r_shift_test();
+    cout << endl << endl << "================ GAP ================" << endl << endl << endl;
+    sub_test();
     return 0;
 }

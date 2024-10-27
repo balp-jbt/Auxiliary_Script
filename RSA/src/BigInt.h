@@ -24,6 +24,10 @@ public:
     // NOTE: if is_in_place, result needs to be deleted manually
     BigInt* add(BigInt *other, bool is_in_place = false);
 
+    //pre-condition: this should be >= other
+    // NOTE: if is_in_place, result needs to be deleted manually
+    BigInt* sub(BigInt *other, bool is_in_place = false);
+
     //pre-condition: this and other should be positive and this.size >= other.size
     // NOTE: result needs to be deleted manually
     BigInt* mult(BigInt *other);
@@ -60,14 +64,7 @@ public:
 
     bool miller_rabin_test(BigInt* target, int threshold=MILLER_RABIN_THRESHOLD);
 
-    
+    static inline base_t _zero = 0, _one = 1, _two = 2;
+    static BigInt big_zero, big_one, big_two;
 };
-
-base_t _zero = 0;
-base_t _one = 1;
-base_t _two = 2;
-BigInt big_zero(_zero);
-BigInt big_one(_one);
-BigInt big_two(_two);
-
 #endif

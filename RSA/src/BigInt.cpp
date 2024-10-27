@@ -1,5 +1,9 @@
 #include "BigInt.h"
 
+BigInt BigInt::big_zero(BigInt::_zero);
+BigInt BigInt::big_one(BigInt::_one);
+BigInt BigInt::big_two(BigInt::_two);
+
 BigInt::BigInt(bool is_positive) {
     this -> is_positive = is_positive;
     this -> data = new vector<base_t>;
@@ -24,6 +28,7 @@ BigInt::BigInt(base_t &data, bool is_positive) {
 
 BigInt::BigInt(BigInt* other) {
     this->is_positive = other->is_positive;
+    this->data = new vector<base_t>;
     this->data->resize(other->data->size());
     for (size_t i = 0; i < other->data->size(); i++) {
         (*this->data)[i] = (*other->data)[i];
@@ -79,13 +84,11 @@ BigInt* BigInt::add(BigInt *other, bool is_in_place) {
 
     BigInt* res;
     if (! is_in_place) {
-        res = new BigInt();
-        *(res->data) = *(this->data);
-        res->data->resize(this->data->size()+1);
+        res = new BigInt(this);
     } else {
         res = this;
-        res->data->resize(this->data->size()+1);
     }
+    res->data->resize(this->data->size()+1);
     
     bool carry = false;
     base_t unit;
@@ -109,8 +112,37 @@ BigInt* BigInt::add(BigInt *other, bool is_in_place) {
     return res;
 }
 
+BigInt* BigInt::sub(BigInt *other, bool is_in_place) {
+    #ifdef DEBUG_MODE_ON
+        assert(this->compare(other) != LT);
+    #endif
+
+    BigInt *res;
+    if (! is_in_place) {
+        res = new BigInt(this);
+    } else {
+        res = this;
+    }
+    
+    bool borrow = false;
+    base_t unit;
+    for (size_t i = 0; i < other->data->size(); i++) {
+        unit = (*this->data)[i] - (*other->data)[i] - borrow;
+        borrow = ((borrow && (*this->data)[i] <= (*other->data)[i]) ||
+                    (!borrow && (*this->data)[i] < (*other->data)[i]));
+        (*res->data)[i] = unit;
+    }
+    for (size_t i = other->data->size(); i < this->data->size(); i++) {
+        unit = (*this->data)[i] - borrow;
+        borrow = (borrow && (*this->data)[i] == 0);
+        (*res->data)[i] = unit;
+    }
+    res->remove_leading_zero();
+    return res;
+}
+
 void BigInt::remove_leading_zero() {
-    while ((*this->data)[this->data->size()-1] == 0 && this->data->size() > 0) {
+    while (this->data->size() > 1 && (*this->data)[this->data->size()-1] == 0) {
         this->data->pop_back();
     }
 }

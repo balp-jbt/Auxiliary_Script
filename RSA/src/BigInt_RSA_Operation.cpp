@@ -114,7 +114,7 @@ bool BigInt::miller_rabin_test(BigInt* target, int threshold) {
             a = generate_random_given_len(target_len);
         }
         // [2-2] Check a^d mod n, if get 1 then true, pass this round
-        if ()
+        
 
         // [2-3] for i \in [0 ... s-1], check a^{(2^i)d} mod n, if get n-1, pass this round
 

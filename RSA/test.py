@@ -51,3 +51,7 @@ print(hex(0x1ffffffffffffffffffffffffffff - (a1>>79)))
 a1 = 0xefecdac3ffffffff65acee1affffffffffec998affffffff
 print(hex(0x1dfd9b587fffffffecb59dc35ffff - (a1>>79)))
 print(hex(0x1dfd9b587fffffffecb59dc35ffff - (a1>>79)))
+
+a1 = 0xefecdac3ffffffff65acee1affffffffffec998affffffff
+a2 = 0xffffffffffffffffffffffffffffffff
+print(hex(0xefecdac3fffffffe65acee1affffffffffec998b00000000 - (a1-a2)))
