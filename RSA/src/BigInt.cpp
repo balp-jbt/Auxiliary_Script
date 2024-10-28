@@ -21,7 +21,7 @@ BigInt::BigInt(vector<base_t> *data, bool is_positive) {
 
 BigInt::BigInt(base_t data, bool is_positive) {
     this -> is_positive = is_positive;
-    base_t unit = data & BASE_MASK;
+    base_t unit = data;
     this -> data = new vector<base_t>;
     (this -> data) -> push_back(unit);
 }
@@ -79,26 +79,37 @@ BigInt* BigInt::add(BigInt *other, bool is_in_place) {
     
     #ifdef DEBUG_MODE_ON
         assert(this->is_positive && other->is_positive);
-        assert(this->data->size() >= other->data->size());
+        // assert(this->data->size() >= other->data->size());
     #endif
 
     BigInt* res;
-    if (! is_in_place) {
-        res = new BigInt(this);
+    BigInt* longer;
+    BigInt* shorter;
+    if (this->data->size() >= other->data->size()) {
+        longer = this;
+        shorter = other;
     } else {
-        res = this;
+        longer = other;
+        shorter = this;
     }
-    res->data->resize(this->data->size()+1);
+
+    if (! is_in_place) {
+            res = new BigInt(longer);
+        } else {
+            res = longer;
+    }
+    
+    res->data->resize(longer->data->size()+1);
     
     bool carry = false;
     base_t unit;
     for (size_t i = 0; i < (res->data->size())-1; i++) {
         unit = (*res->data)[i];
-        (*res->data)[i] += (*other->data)[i] + carry;
+        (*res->data)[i] += (*shorter->data)[i] + carry;
         carry = ((carry && (*res->data)[i] <= unit) || (!carry && (*res->data)[i] < unit));
     }
 
-    for (size_t i = other->data->size(); i < (res->data->size())-1; i++) {
+    for (size_t i = shorter->data->size(); i < (res->data->size())-1; i++) {
         unit = (*res->data)[i];
         (*res->data)[i] += carry;
          carry = ((carry && (*res->data)[i] <= unit) || (!carry && (*res->data)[i] < unit));
@@ -152,7 +163,7 @@ BigInt* BigInt::mult(BigInt* other) {
 
     #ifdef DEBUG_MODE_ON
         assert(this->is_positive && other->is_positive);
-        assert(this->data->size() >= other->data->size());
+       //  assert(this->data->size() >= other->data->size());
     #endif
 
     BigInt* res = new BigInt();
@@ -260,7 +271,7 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
 
     if (this->compare(other) == LT) {
         BigInt* res = new BigInt((base_t) 0);
-        BigInt* remainder = new BigInt(other);
+        BigInt* remainder = new BigInt(this);
         return make_pair(res, remainder);
     }
 
@@ -272,13 +283,13 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
             unit = (unit << BASE_WIDTH) + (*this->data)[i];
             (*quotient->data)[i] = unit / (*other->data)[0];
             unit = unit % (*other->data)[0];
-            cout << "unit=  " << hex << (base_t)unit << endl << dec;
+            // cout << "unit=  " << hex << (base_t)unit << endl << dec;
             if (i == 0) {
                 break;
             }
         }
         quotient->remove_leading_zero();
-        cout << "unit=  " << hex << (base_t)unit << endl << dec;
+        // cout << "unit=  " << hex << (base_t)unit << endl << dec;
         BigInt* remainder = new BigInt((base_t)unit);
         remainder->remove_leading_zero();
         return make_pair(quotient, remainder);
@@ -299,12 +310,12 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
             assert(l_distance < BASE_WIDTH);
         #endif
     }
-    cout << "[1] l_distance= " << l_distance << endl; 
+    // cout << "[1] l_distance= " << l_distance << endl; 
     divisor.l_shift(l_distance, true);
     dividend->l_shift(l_distance, true);
     //guarante dividened.size() > divisor.size()
     dividend->data->push_back(0);
-    cout << "[---]" << dividend->data->size() << "  " << divisor.data -> size() << endl;
+    // cout << "[---]" << dividend->data->size() << "  " << divisor.data -> size() << endl;
     quotient_data.resize(dividend->data->size() - divisor.data->size() + 1);
 
     // [D2] Initialize j
@@ -313,7 +324,7 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
     mult_t divisor_sec_high = (*divisor.data)[divisor.data->size()-2];
     
     while(true) {
-        cout << "[0] " << "i = " << cur_index << endl;
+        // cout << "[0] " << "i = " << cur_index << endl;
         // [D3] calculate \hat{q} i.e. estimated q
         mult_t unit_dividened;
         mult_t quotient_estimate;
@@ -322,12 +333,12 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
         unit_dividened = ((mult_t)((mult_t) (*dividend->data)[cur_dividened_index] << BASE_WIDTH) +
                     (mult_t)(*dividend->data)[cur_dividened_index-1]);
         quotient_estimate = (unit_dividened) / divisor_high;
-        std::cout << "[2] estimate_q= " << std::hex << quotient_estimate << std::dec << "\n";
+        // cout << "[2] estimate_q= " << std::hex << quotient_estimate << std::dec << "\n";
         remainder_estimate = (unit_dividened) % divisor_high;
         while (quotient_estimate == BASE || 
             ((remainder_estimate << BASE_WIDTH) + (mult_t)(*dividend->data)[cur_dividened_index-2]
                 < (quotient_estimate * divisor_sec_high))) {
-                    cout << "HELLO?" << endl;
+                    // cout << "HELLO?" << endl;
                     quotient_estimate--;
                     remainder_estimate += divisor_high;
                     if (remainder_estimate >= BASE) {
@@ -347,13 +358,14 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
             borrow = ((borrow && (*dividend->data)[cur_index + divisor_index] <= (base_t)subtrahend_unit) ||
                         (!borrow && (*dividend->data)[cur_index + divisor_index] < (base_t)subtrahend_unit));
             (*dividend->data)[cur_index+divisor_index] = res_unit;
-            cout << "[4] set index " << cur_index+divisor_index << " to " << res_unit << endl;
+            // cout << "[4] set index " << cur_index+divisor_index << " to " << res_unit << endl;
             subtrahend_unit = (subtrahend_unit >> BASE_WIDTH);
         }
 
         // [D5] Test remainder
         if (borrow) {
             // [D6] Add back
+            // TODO: since this happens a very low probablity, so this may cause possible bugs?
             quotient_estimate--;
             bool carry = false;
             res_unit = 0;
@@ -391,13 +403,10 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
     return make_pair(quotient, dividend);
 }
 
-BigInt* BigInt::fast_power(BigInt* exponet) {
-    
-}
-
 #ifdef DEBUG_MODE_ON
 void BigInt::print_plain(string auxiliary_text) {
     cout << auxiliary_text;
+    cout << "0x";
     for (size_t i = this->data->size() - 1; ; i--) {
         cout << hex << std::setw(BASE_WIDTH / 4) << std::setfill('0') << (*this->data)[i] << dec;
         if (i == 0) {

@@ -4,18 +4,39 @@ BigInt::BigInt(string *data) {
 
 }
 
-BigInt* BigInt::modularExponentiation(BigInt* exponent, BigInt* modulo) {
-    BigInt mid_pow_res;
-    BigInt res;
-
+BigInt* BigInt::modular_exponentiation(BigInt* exponent, BigInt* modulo) {
+    BigInt* mid_pow_res = new BigInt(this);
+    BigInt* res = new BigInt(base_t(1));
+    pair<BigInt*, BigInt*> div_res;
+    div_res= mid_pow_res->div(modulo);
+    mid_pow_res = div_res.second;
+    mid_pow_res->print_plain("[a] \n");
     for (size_t unit_i = 0; unit_i < exponent->data->size(); unit_i++) {
-        base_t bit_mask = BASE_HIGH_MASK;
-        for (size_t part_i = 0; part_i < BASE_WIDTH; part_i++) {
-            if ((*exponent->data)[unit_i] & BASE_HIGH_MASK) {
-                
+        base_t bit_mask = 1;
+        size_t part_i = 0;
+        while(true) {
+            cout << "<" << unit_i * BASE_WIDTH + part_i << ">" << endl;
+            if ((*exponent->data)[unit_i] & bit_mask) {
+                res->print_plain("[ans add] before:\n");
+                res = res->mult(mid_pow_res);\
+                res->print_plain("[ans add] mid:\n");
+                div_res = res->div(modulo);
+                res = div_res.second;
+                res->print_plain("[ans add] after:\n");
             }
+            part_i++;
+            if (part_i > BASE_WIDTH) {
+                break;
+            }
+            mid_pow_res = mid_pow_res->mult(mid_pow_res);
+            mid_pow_res->print_plain("[a1]\n");
+            div_res = mid_pow_res->div(modulo);
+            mid_pow_res = div_res.second;
+            mid_pow_res->print_plain("[a2]\n");
+            bit_mask = (bit_mask << 1);
         }
     }
+    return res;
 }
 
 BigInt* BigInt::generate_random_given_len(size_t bit_len) {

@@ -32,18 +32,14 @@ public:
     // NOTE: result needs to be deleted manually
     BigInt* mult(BigInt *other);
 
+    // NOTE: if is_in_place, result needs to be deleted manually
     BigInt* l_shift(size_t n, bool is_in_place = false);
 
+    // NOTE: if is_in_place, result needs to be deleted manually
     BigInt* r_shift(size_t n, bool is_in_place = false);
 
     // NOTE: result needs to be deleted manually
     pair<BigInt*, BigInt*> div(BigInt *other);
-
-    BigInt operator%(const BigInt &other) const;
-
-    void print() const;
-
-    BigInt* fast_power(BigInt* exponet);
 
     void remove_leading_zero();
 
@@ -54,7 +50,7 @@ public:
     // Other support operations (BigInt_RSA_Operation.cpp)
     BigInt(string *data);
 
-    BigInt* modularExponentiation(BigInt* pow, BigInt* base);
+    BigInt* modular_exponentiation(BigInt* pow, BigInt* base);
 
     // NOTE: result needs to be deleted manually
     BigInt* generate_random_given_len(size_t but_len);
