@@ -20,7 +20,6 @@ public:
 
     size_t get_bit_len();
 
-    //pre-condition: this and other should be positive and this.size >= other.size
     // NOTE: if is_in_place, result needs to be deleted manually
     BigInt* add(BigInt *other, bool is_in_place = false);
 
@@ -43,6 +42,8 @@ public:
 
     void remove_leading_zero();
 
+    string to_hex();
+    
 #ifdef DEBUG_MODE_ON
     void print_plain(string auxiliary_text);
 #endif
@@ -53,14 +54,17 @@ public:
     BigInt* modular_exponentiation(BigInt* pow, BigInt* base);
 
     // NOTE: result needs to be deleted manually
-    BigInt* generate_random_given_len(size_t but_len);
+    static BigInt* generate_random_given_len(size_t but_len);
 
-    BigInt* generate_prime(size_t bit_len);
+    static BigInt* generate_prime(size_t bit_len);
 
-    BigInt extend_gcd(BigInt p, BigInt q);
+    static bool miller_rabin_test(BigInt* target, int threshold=MILLER_RABIN_THRESHOLD);
 
-    bool miller_rabin_test(BigInt* target, int threshold=MILLER_RABIN_THRESHOLD);
+    static BigInt* extend_gcd(BigInt* p, BigInt* q);
 
-    static BigInt big_zero, big_one, big_two;
+    static BigInt big_zero, big_one, big_two, big_e;
+    static vector<BigInt*> small_prime;
+
+
 };
 #endif

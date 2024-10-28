@@ -103,7 +103,7 @@ BigInt* BigInt::add(BigInt *other, bool is_in_place) {
     
     bool carry = false;
     base_t unit;
-    for (size_t i = 0; i < (res->data->size())-1; i++) {
+    for (size_t i = 0; i < (shorter->data->size()); i++) {
         unit = (*res->data)[i];
         (*res->data)[i] += (*shorter->data)[i] + carry;
         carry = ((carry && (*res->data)[i] <= unit) || (!carry && (*res->data)[i] < unit));
@@ -157,6 +157,21 @@ void BigInt::remove_leading_zero() {
         this->data->pop_back();
     }
 }
+
+string BigInt::to_hex() {
+    ostringstream res;
+    res << hex;
+    int i = this->data->size() - 1;
+    res << (*this->data)[i];
+    i--;
+    while (i >= 0) {
+        res << setfill('0') << std::setw(BASE_WIDTH / 4) << std::hex << (*this->data)[i];
+        i--;
+    }
+
+    return res.str();
+}
+
 
 // TODO: Use Karatsuba algorithm as an option
 BigInt* BigInt::mult(BigInt* other) {
@@ -283,13 +298,11 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
             unit = (unit << BASE_WIDTH) + (*this->data)[i];
             (*quotient->data)[i] = unit / (*other->data)[0];
             unit = unit % (*other->data)[0];
-            // cout << "unit=  " << hex << (base_t)unit << endl << dec;
             if (i == 0) {
                 break;
             }
         }
         quotient->remove_leading_zero();
-        // cout << "unit=  " << hex << (base_t)unit << endl << dec;
         BigInt* remainder = new BigInt((base_t)unit);
         remainder->remove_leading_zero();
         return make_pair(quotient, remainder);
@@ -310,12 +323,10 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
             assert(l_distance < BASE_WIDTH);
         #endif
     }
-    // cout << "[1] l_distance= " << l_distance << endl; 
     divisor.l_shift(l_distance, true);
     dividend->l_shift(l_distance, true);
     //guarante dividened.size() > divisor.size()
     dividend->data->push_back(0);
-    // cout << "[---]" << dividend->data->size() << "  " << divisor.data -> size() << endl;
     quotient_data.resize(dividend->data->size() - divisor.data->size() + 1);
 
     // [D2] Initialize j
@@ -324,7 +335,6 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
     mult_t divisor_sec_high = (*divisor.data)[divisor.data->size()-2];
     
     while(true) {
-        // cout << "[0] " << "i = " << cur_index << endl;
         // [D3] calculate \hat{q} i.e. estimated q
         mult_t unit_dividened;
         mult_t quotient_estimate;
@@ -333,12 +343,10 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
         unit_dividened = ((mult_t)((mult_t) (*dividend->data)[cur_dividened_index] << BASE_WIDTH) +
                     (mult_t)(*dividend->data)[cur_dividened_index-1]);
         quotient_estimate = (unit_dividened) / divisor_high;
-        // cout << "[2] estimate_q= " << std::hex << quotient_estimate << std::dec << "\n";
         remainder_estimate = (unit_dividened) % divisor_high;
         while (quotient_estimate == BASE || 
             ((remainder_estimate << BASE_WIDTH) + (mult_t)(*dividend->data)[cur_dividened_index-2]
                 < (quotient_estimate * divisor_sec_high))) {
-                    // cout << "HELLO?" << endl;
                     quotient_estimate--;
                     remainder_estimate += divisor_high;
                     if (remainder_estimate >= BASE) {
@@ -358,7 +366,6 @@ pair<BigInt*, BigInt*> BigInt::div(BigInt* other) {
             borrow = ((borrow && (*dividend->data)[cur_index + divisor_index] <= (base_t)subtrahend_unit) ||
                         (!borrow && (*dividend->data)[cur_index + divisor_index] < (base_t)subtrahend_unit));
             (*dividend->data)[cur_index+divisor_index] = res_unit;
-            // cout << "[4] set index " << cur_index+divisor_index << " to " << res_unit << endl;
             subtrahend_unit = (subtrahend_unit >> BASE_WIDTH);
         }
 
@@ -412,7 +419,6 @@ void BigInt::print_plain(string auxiliary_text) {
         if (i == 0) {
             break;
         }
-        // cout << ",";
     }
     cout << endl;
 }

@@ -1,5 +1,35 @@
 #include "BigInt.h"
 
+BigInt BigInt::big_e = new BigInt((base_t)RSA_PUBLIC_EXPONENT);
+
+
+vector<BigInt*> BigInt::small_prime = [] {
+    std::vector<BigInt*> vec;
+    vector<base_t> _small_prime = {
+        2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
+        53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109,
+        113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179,
+        181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241,
+        251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313,
+        317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389,
+        397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461,
+        463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547,
+        557, 563, 569, 571, 577, 587, 593, 599, 601, 607, 613, 617,
+        619, 631, 641, 643, 647, 653, 659, 661, 673, 677, 683, 691,
+        701, 709, 719, 727, 733, 739, 743, 751, 757, 761, 769, 773,
+        787, 797, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859,
+        863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947,
+        953, 967, 971, 977, 983, 991, 997
+    };
+
+    for (base_t prime : _small_prime) {
+        vec.push_back(new BigInt(prime));
+    }
+    return vec;
+}();
+
+
+
 BigInt::BigInt(string *data) {
 
 }
@@ -10,29 +40,22 @@ BigInt* BigInt::modular_exponentiation(BigInt* exponent, BigInt* modulo) {
     pair<BigInt*, BigInt*> div_res;
     div_res= mid_pow_res->div(modulo);
     mid_pow_res = div_res.second;
-    mid_pow_res->print_plain("[a] \n");
     for (size_t unit_i = 0; unit_i < exponent->data->size(); unit_i++) {
         base_t bit_mask = 1;
         size_t part_i = 0;
         while(true) {
-            cout << "<" << unit_i * BASE_WIDTH + part_i << ">" << endl;
             if ((*exponent->data)[unit_i] & bit_mask) {
-                res->print_plain("[ans add] before:\n");
-                res = res->mult(mid_pow_res);\
-                res->print_plain("[ans add] mid:\n");
+                res = res->mult(mid_pow_res);
                 div_res = res->div(modulo);
                 res = div_res.second;
-                res->print_plain("[ans add] after:\n");
             }
             part_i++;
             if (part_i > BASE_WIDTH) {
                 break;
             }
             mid_pow_res = mid_pow_res->mult(mid_pow_res);
-            mid_pow_res->print_plain("[a1]\n");
             div_res = mid_pow_res->div(modulo);
             mid_pow_res = div_res.second;
-            mid_pow_res->print_plain("[a2]\n");
             bit_mask = (bit_mask << 1);
         }
     }
@@ -75,7 +98,7 @@ BigInt* BigInt::generate_prime(size_t bit_len) {
         assert((*target->data)[0] & 1);
     #endif
 
-    while (target->compare(&big_one) != GT) {
+    while (target->compare(&big_two) != GT) {
         delete target;
         target = generate_random_given_len(bit_len);
             #ifdef DEBUG_MODE_ON
@@ -84,10 +107,19 @@ BigInt* BigInt::generate_prime(size_t bit_len) {
     }
 
     while (true) {
-        if (miller_rabin_test(target)) {
+        bool pass = true;
+        
+        for (BigInt* small_prime: BigInt::small_prime) {
+            pair<BigInt*, BigInt*> res = target -> div(small_prime);
+            if (res.second->compare(&big_zero) == EQ) {
+                pass = false;
+                break;
+            }
+        }
+        if (pass && BigInt::miller_rabin_test(target)) {
             return target;
         }
-        target->add(&big_two, true); // TODO: check whether the left 'target' could be ignored
+        target = target->add(&big_two);
     }
 }
 
@@ -112,7 +144,7 @@ bool BigInt::miller_rabin_test(BigInt* target, int threshold) {
         }
         s++;
         cur_part++;
-        if (cur_part == 63) {
+        if (cur_part == BASE_WIDTH - 1) {
             cur_part = 0;
             cur_unit++;
         }
@@ -121,7 +153,7 @@ bool BigInt::miller_rabin_test(BigInt* target, int threshold) {
         }
     }
 
-    d -> r_shift(s, true); // TODO: check whether the left 'target' could be ignored
+    d -> r_shift(s, true);
 
     // [2] test-loop
     int test_time = 0;
@@ -130,22 +162,32 @@ bool BigInt::miller_rabin_test(BigInt* target, int threshold) {
         test_time++;
         // [2-1] choose random a \in (1, n-1) 
         BigInt* a = generate_random_given_len(target_len);
-        while (a->compare(target_minus_one) != GT) {
+        while (a->compare(target_minus_one) == GT) {
             delete a;
             a = generate_random_given_len(target_len);
         }
         // [2-2] Check a^d mod n, if get 1 then true, pass this round
+        BigInt* res = a->modular_exponentiation(d, target);
+        if (res->compare(&big_one) == EQ) {
+            test_time++;
+            continue;
+        }
         
-
         // [2-3] for i \in [0 ... s-1], check a^{(2^i)d} mod n, if get n-1, pass this round
-
-        
-        
-        return false;
+        bool pass = false;
+        for (size_t i = 0; i < s; i++) {
+            res = res->modular_exponentiation(&big_two, target);
+            if (res == target_minus_one) {
+                pass = true;
+                break;
+            }
+        }
+        if (! pass) {
+            return false;
+        }
+        test_time++;
+        continue;
     }
 
     return true;
-
-
-
 }

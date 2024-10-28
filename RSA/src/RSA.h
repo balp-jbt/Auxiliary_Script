@@ -3,9 +3,6 @@
 
 #include "BigInt.h"
 
-
-#define RSA_PUBLIC_EXPONENT 65537 // Choose e = 65537 as the standard requires
-
 class RSA{
 
 private: 
@@ -19,13 +16,13 @@ public:
 
     RSA();
 
-    void generate_key(string path);
+    static void generate_key(string path, size_t bit_len);
 
-    void encrypt_data(BigInt key, string in_path, string out_path);
+    static void encrypt_data(BigInt key, string in_path, string out_path);
 
-    void decrypt_data(BigInt key, string in_path, string out_path);    
+    static void decrypt_data(BigInt key, string in_path, string out_path);    
 
-
+    
 };
 
 #endif

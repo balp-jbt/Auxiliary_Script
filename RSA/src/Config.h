@@ -1,10 +1,11 @@
 // TODO: remove all #ifdef for debug
+// TODO: check for delete for every new, especially in fast_expotienal_mod
 
 #ifndef __CONFIG__
 #define __CONFIG__
 
 // RSA Options
-#define MILLER_RABIN_THRESHOLD 20
+#define MILLER_RABIN_THRESHOLD 10
 
 // BigInt
 // #define BASE_WIDTH 32
@@ -18,6 +19,7 @@
 #define GT 1
 #define LT 2
 
+#define RSA_PUBLIC_EXPONENT 65537 // Choose e = 65537 as the standard requires
 
 // Debug_Config
 #define DEBUG_MODE_ON 
@@ -30,6 +32,8 @@
 #include <utility>
 #include <random>
 #include <stdexcept>
+#include <sstream>
+#include <fstream>
 
 #ifdef DEBUG_MODE_ON
 #include <iostream>
@@ -41,6 +45,7 @@ using std::string;
 using std::pair;
 using std::make_pair;
 using std::runtime_error;
+using std::ostringstream;
 
 #ifdef DEBUG_MODE_ON
 using std::cout;
