@@ -3,3 +3,7 @@
 *.exe
 .vscode
 .VSCodeCounter
+
+/tmp
+/RSA/build
+RSA/test.py

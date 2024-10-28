@@ -66,7 +66,7 @@ BigInt* BigInt::generate_prime(size_t bit_len) {
         if (miller_rabin_test(target)) {
             return target;
         }
-        target = target->add(&big_two, true); // TODO: check whether the left 'target' could be ignored
+        target->add(&big_two, true); // TODO: check whether the left 'target' could be ignored
     }
 }
 
@@ -100,7 +100,7 @@ bool BigInt::miller_rabin_test(BigInt* target, int threshold) {
         }
     }
 
-    d = d -> r_shift(s, true); // TODO: check whether the left 'target' could be ignored
+    d -> r_shift(s, true); // TODO: check whether the left 'target' could be ignored
 
     // [2] test-loop
     int test_time = 0;

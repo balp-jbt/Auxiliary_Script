@@ -2,7 +2,7 @@
 
 RSA::RSA() {
     size_t prime_e = RSA_PUBLIC_EXPONENT;
-    this -> prime_e = BigInt(prime_e);
+    this -> prime_e = BigInt((base_t)prime_e);
 }
 
 void RSA::generate_key(string path) {

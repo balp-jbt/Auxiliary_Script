@@ -10,7 +10,7 @@ public:
 
     BigInt(bool is_positive = true);                     
     BigInt(vector<base_t> *data, bool is_positive = true);
-    BigInt(base_t &data, bool is_positive = true);        
+    BigInt(base_t data, bool is_positive = true);        
     BigInt(BigInt* other);
 
     ~BigInt();
@@ -36,7 +36,8 @@ public:
 
     BigInt* r_shift(size_t n, bool is_in_place = false);
 
-    BigInt* div(BigInt *other);
+    // NOTE: result needs to be deleted manually
+    pair<BigInt*, BigInt*> div(BigInt *other);
 
     BigInt operator%(const BigInt &other) const;
 
@@ -64,7 +65,6 @@ public:
 
     bool miller_rabin_test(BigInt* target, int threshold=MILLER_RABIN_THRESHOLD);
 
-    static inline base_t _zero = 0, _one = 1, _two = 2;
     static BigInt big_zero, big_one, big_two;
 };
 #endif
