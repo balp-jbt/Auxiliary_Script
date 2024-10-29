@@ -12,6 +12,9 @@ public:
     BigInt(vector<base_t> *data, bool is_positive = true);
     BigInt(base_t data, bool is_positive = true);        
     BigInt(BigInt* other);
+    
+    //pre-condition: \forall i, hen_str[i] \in {0...9, a...f}
+    BigInt(string* hex_str, bool is_positive);
 
     ~BigInt();
 
@@ -27,7 +30,7 @@ public:
     // NOTE: if is_in_place, result needs to be deleted manually
     BigInt* sub(BigInt *other, bool is_in_place = false);
 
-    //pre-condition: this and other should be positive and this.size >= other.size
+    //pre-condition: this and other should be positive
     // NOTE: result needs to be deleted manually
     BigInt* mult(BigInt *other);
 
@@ -49,7 +52,6 @@ public:
 #endif
 
     // Other support operations (BigInt_RSA_Operation.cpp)
-    BigInt(string *data);
 
     BigInt* modular_exponentiation(BigInt* pow, BigInt* base);
 
@@ -60,11 +62,11 @@ public:
 
     static bool miller_rabin_test(BigInt* target, int threshold=MILLER_RABIN_THRESHOLD);
 
-    static BigInt* extend_gcd(BigInt* p, BigInt* q);
+    static pair<BigInt*, pair<BigInt*, BigInt*>> extend_gcd(BigInt* p, BigInt* q);
 
     static BigInt big_zero, big_one, big_two, big_e;
     static vector<BigInt*> small_prime;
-
+    
 
 };
 #endif

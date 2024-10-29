@@ -16,7 +16,7 @@ public:
 
     RSA();
 
-    static void generate_key(string path, size_t bit_len);
+    static void generate_key(size_t bit_len, string path_pub = "./id_rsa.pub", string path_priv = "./id_rsa");
 
     static void encrypt_data(BigInt key, string in_path, string out_path);
 

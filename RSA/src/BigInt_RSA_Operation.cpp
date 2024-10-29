@@ -28,12 +28,6 @@ vector<BigInt*> BigInt::small_prime = [] {
     return vec;
 }();
 
-
-
-BigInt::BigInt(string *data) {
-
-}
-
 BigInt* BigInt::modular_exponentiation(BigInt* exponent, BigInt* modulo) {
     BigInt* mid_pow_res = new BigInt(this);
     BigInt* res = new BigInt(base_t(1));
@@ -123,7 +117,6 @@ BigInt* BigInt::generate_prime(size_t bit_len) {
     }
 }
 
-
 bool BigInt::miller_rabin_test(BigInt* target, int threshold) {
     
     // [1] target = 2^s * d;
@@ -190,4 +183,72 @@ bool BigInt::miller_rabin_test(BigInt* target, int threshold) {
     }
 
     return true;
+}
+
+
+// up + vq  = 1
+pair<BigInt*, pair<BigInt*, BigInt*>> BigInt::extend_gcd(BigInt* p, BigInt* q) {
+    BigInt* a = new BigInt(p);
+    BigInt* b = new BigInt(q);
+    BigInt* u = new BigInt(&big_one);
+    BigInt* e = new BigInt;
+    BigInt* v = new BigInt;
+    BigInt* f = new BigInt(&big_one);
+    pair<BigInt*, BigInt*> qr;
+    pair<BigInt*, BigInt*> qr_inner;
+    BigInt* mid_res;
+    while (b->compare(&big_zero) != EQ) {
+        qr = a -> div(b);
+        delete a;
+        a = b;
+        b = qr.second;
+        mid_res = qr.first->mult(e);
+
+        if (u -> compare(mid_res) != LT) {
+            u -> sub(mid_res, true);
+        } else {
+            mid_res -> sub(u, true);
+            qr_inner = mid_res->div(q);
+            delete u;
+            if (qr_inner.second->compare(&big_zero) != EQ) {
+                u = q -> sub(qr_inner.second);
+            } else {
+                u = new BigInt(&big_zero);
+            }
+            delete qr_inner.first;
+            delete qr_inner.second;
+        }
+
+        delete mid_res;
+        mid_res = e;
+        e = u;
+        u = mid_res;
+
+        mid_res = qr.first->mult(f);
+        if (v -> compare(mid_res) != LT) {
+            v -> sub(mid_res, true);
+        } else {
+            mid_res -> sub(v, true);
+            qr_inner = mid_res->div(p);
+            delete v;
+            if (qr_inner.second->compare(&big_zero) != EQ) {
+                v = p -> sub(qr_inner.second);
+            } else {
+                v = new BigInt(&big_zero);
+            }
+            delete qr_inner.first;
+            delete qr_inner.second;
+        }
+        delete mid_res;
+        mid_res = f;
+        f = v;
+        v = mid_res;
+
+        delete qr.first;
+    }
+
+    delete b;
+    delete e;
+    delete f;
+    return make_pair(a, make_pair(u, v));
 }

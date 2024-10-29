@@ -10,7 +10,6 @@ BigInt::BigInt(bool is_positive) {
     this-> data -> push_back(0);
 }
 
-
 BigInt::BigInt(vector<base_t> *data, bool is_positive) {
     this -> is_positive = is_positive;
     this -> data = new vector<base_t>;
@@ -35,6 +34,33 @@ BigInt::BigInt(BigInt* other) {
     }
 }
 
+BigInt::BigInt(string *hex_str, bool is_positive) {
+    vector<base_t>* data = new vector<base_t>;
+    size_t unit_char_len = BASE_WIDTH / 4;
+    char cur_chr;
+    base_t unit = 0;
+    size_t unit_cnt = 0;
+
+    for (size_t cur_index = 0; cur_index < data->size(); cur_index++) {
+        if (unit_cnt == unit_char_len) {
+            unit_cnt = 0;
+            data->push_back(unit);
+            unit = 0;
+        }
+
+        cur_chr = (*hex_str)[cur_index];
+        unit = (unit << 4) + ((cur_chr <= '9') ? (cur_chr - '0') : (cur_chr - 'a' + 0xa));
+        cur_index ++;      
+        unit_cnt++;
+    }
+
+    if (unit_cnt) {
+        data->push_back(unit);
+    }
+    this->is_positive = is_positive;
+    this->data = data;
+}
+
 BigInt::~BigInt() {
     delete this -> data;
 }
@@ -46,13 +72,15 @@ int BigInt::compare(BigInt* other) {
     if (this->data->size() < other->data->size()) {
         return LT;
     }
-
-    for (size_t i = 0; i < this->data->size(); i++) {
+    for (size_t i = this->data->size() - 1; ; i--) {
         if ((*this->data)[i] > (*other->data)[i]) {
             return GT;
         }
         if ((*this->data)[i] < (*other->data)[i]) {
             return LT;
+        }
+        if (i == 0) {
+            break;
         }
     }
     return EQ;
