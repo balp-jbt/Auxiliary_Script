@@ -1,8 +1,8 @@
 CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++17 
+CXXFLAGS := -Wall -Wextra -std=c++17 -O3
 
 SRC_DIR := src
-BUILD_DIR := build
+BUILD_DIR := bin
 
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 

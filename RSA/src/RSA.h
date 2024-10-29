@@ -5,23 +5,16 @@
 
 class RSA{
 
-private: 
-    BigInt prime_p;
-    BigInt prime_q;
-    BigInt private_key;
-
 public:
-    BigInt public_key;
-    BigInt prime_e;
+    size_t key_len;
 
     RSA();
 
     static void generate_key(size_t bit_len, string path_pub = "./id_rsa.pub", string path_priv = "./id_rsa");
 
-    static void encrypt_data(BigInt key, string in_path, string out_path);
+    static string handle_unit(size_t key_len, BigInt* key, BigInt* target);
 
-    static void decrypt_data(BigInt key, string in_path, string out_path);    
-
+    static void handle(string key_path, string data_path, string out_path);
     
 };
 

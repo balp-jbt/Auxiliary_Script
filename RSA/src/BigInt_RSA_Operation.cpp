@@ -66,20 +66,23 @@ BigInt* BigInt::generate_random_given_len(size_t bit_len) {
     size_t part_len = bit_len % BASE_WIDTH;
     if (!part_len) {
         unit_len--;
-        part_len = BASE_WIDTH - 1;
+        part_len = BASE_WIDTH;
     }
 
     vector<base_t> init_data;
     init_data.resize(unit_len + 1);
-    for (size_t i = 1; i <= unit_len; i++) {
+    for (size_t i = 0; i < unit_len; i++) {
         init_data[i] = distrib_unit(gen);
     }
-    base_t part = 0;
-    for (size_t i = 0; i < part_len-1; i++) {
+
+    // Assert real_bit_len = bit_len!
+    base_t part = 1;
+    for (size_t i = 0; i < part_len - 1; i++) {
         part = (part << 1) | distrib_binary(gen);
     }
-    part = (part << 1) | 1;
-    init_data[0] = part;
+
+    init_data[unit_len] = part;
+
     BigInt* target = new BigInt(&init_data);
     target->remove_leading_zero();
     return target;
@@ -87,17 +90,12 @@ BigInt* BigInt::generate_random_given_len(size_t bit_len) {
 
 BigInt* BigInt::generate_prime(size_t bit_len) {
     BigInt* target = generate_random_given_len(bit_len);
-
-    #ifdef DEBUG_MODE_ON
-        assert((*target->data)[0] & 1);
-    #endif
+    (*target->data)[0] =  ((*target->data)[0] | 1);
 
     while (target->compare(&big_two) != GT) {
         delete target;
         target = generate_random_given_len(bit_len);
-            #ifdef DEBUG_MODE_ON
-                assert((*target->data)[0] & 1);
-            #endif
+        (*target->data)[0] =  ((*target->data)[0] & 1);
     }
 
     while (true) {
@@ -184,7 +182,6 @@ bool BigInt::miller_rabin_test(BigInt* target, int threshold) {
 
     return true;
 }
-
 
 // up + vq  = 1
 pair<BigInt*, pair<BigInt*, BigInt*>> BigInt::extend_gcd(BigInt* p, BigInt* q) {

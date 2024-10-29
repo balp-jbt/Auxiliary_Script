@@ -89,7 +89,7 @@ int BigInt::compare(BigInt* other) {
 size_t BigInt::get_bit_len() {
     size_t res, offset = 0, mask = BASE_HIGH_MASK;
     while (true) {
-        if ((*this->data)[0] & mask) {
+        if ((*this->data)[this->data->size()-1] & mask) {
             break;
         }
         offset++;

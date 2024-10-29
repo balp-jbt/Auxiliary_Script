@@ -1,9 +1,6 @@
 #include "RSA.h"
 
-RSA::RSA() {
-    size_t prime_e = RSA_PUBLIC_EXPONENT;
-    this -> prime_e = BigInt((base_t)prime_e);
-}
+RSA::RSA() {}
 
 void RSA::generate_key(size_t bit_len, string path_pub, string path_priv) {
     BigInt* p = BigInt::generate_prime(bit_len / 2);
@@ -22,7 +19,7 @@ void RSA::generate_key(size_t bit_len, string path_pub, string path_priv) {
     if (! private_key_file) {
         throw runtime_error("Error in opening target file!\n");
     }
-    private_key_file << "RSA PRIVATE KEY" << endl;
+    // private_key_file << "RSA PRIVATE KEY" << endl;
     private_key_file << d->to_hex() << endl;
     private_key_file.close();
 
@@ -30,21 +27,24 @@ void RSA::generate_key(size_t bit_len, string path_pub, string path_priv) {
     if (! public_key_file) {
         throw runtime_error("Error in opening target file!\n");
     }
-    public_key_file << "RSA PUBLIC KEY" << endl;
+    // public_key_file << "RSA PUBLIC KEY" << endl;
     public_key_file << RSA_PUBLIC_EXPONENT << endl;
     public_key_file << n->to_hex() << endl;
-    public_key_file << "[prime1] " << p->to_hex() << endl;
-    public_key_file << "[prime2] " << q->to_hex() << endl;
-    public_key_file << "[phi_n] " << phi_n->to_hex() << endl;
+    // public_key_file << "[prime1] " << p->to_hex() << endl;
+    // public_key_file << "[prime2] " << q->to_hex() << endl;
+    // public_key_file << "[phi_n] " << phi_n->to_hex() << endl;
     public_key_file.close();
     return;
 }
 
-// void RSA::encrypt_data(BigInt key, string in_path, string out_path) {
-//     return;
-// }
+string handle_unit(size_t key_len, BigInt* key, BigInt* target) {
+    #ifdef DEBUG_MODE_ON
+        assert(target->data->size() * BASE_WIDTH % key_len == 0);
+    #endif
+    // BigInt* res = ;
+}
 
-// void RSA::decrypt_data(BigInt key, string in_path, string out_path) {
-//     return;
-// }
+void RSA::handle(string key_path, string data_path, string out_path) {
+    return;
+}
 
