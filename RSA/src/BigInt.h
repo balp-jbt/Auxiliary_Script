@@ -14,7 +14,7 @@ public:
     BigInt(BigInt* other);
     
     //pre-condition: \forall i, hen_str[i] \in {0...9, a...f}
-    BigInt(string* hex_str, bool is_positive);
+    BigInt(string& hex_str, bool is_positivee = true);
 
     ~BigInt();
 
@@ -23,11 +23,11 @@ public:
 
     size_t get_bit_len();
 
-    // NOTE: if is_in_place, result needs to be deleted manually
+    // NOTE: if is_in_place false, result needs to be deleted manually
     BigInt* add(BigInt *other, bool is_in_place = false);
 
     //pre-condition: this should be >= other
-    // NOTE: if is_in_place, result needs to be deleted manually
+    // NOTE: if is_in_place false, result needs to be deleted manually
     BigInt* sub(BigInt *other, bool is_in_place = false);
 
     //pre-condition: this and other should be positive

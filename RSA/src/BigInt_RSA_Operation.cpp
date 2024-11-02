@@ -111,7 +111,7 @@ BigInt* BigInt::generate_prime(size_t bit_len) {
         if (pass && BigInt::miller_rabin_test(target)) {
             return target;
         }
-        target = target->add(&big_two);
+        target = target->add(&big_two, true);
     }
 }
 

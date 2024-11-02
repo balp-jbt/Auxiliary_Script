@@ -55,6 +55,9 @@ using std::hex;
 using std::dec;
 using std::setw;
 using std::setfill;
+using std::ofstream;
+using std::ifstream;
+using std::getline;
 #endif
 
 // typedef uint64_t mult_t;

@@ -34,29 +34,32 @@ BigInt::BigInt(BigInt* other) {
     }
 }
 
-BigInt::BigInt(string *hex_str, bool is_positive) {
+BigInt::BigInt(string& hex_str, bool is_positive) {
     vector<base_t>* data = new vector<base_t>;
     size_t unit_char_len = BASE_WIDTH / 4;
     char cur_chr;
-    base_t unit = 0;
-    size_t unit_cnt = 0;
+    base_t unit;
+    size_t cur_index = hex_str.size() - 1;
 
-    for (size_t cur_index = 0; cur_index < data->size(); cur_index++) {
-        if (unit_cnt == unit_char_len) {
-            unit_cnt = 0;
-            data->push_back(unit);
-            unit = 0;
+    while (cur_index >= unit_char_len - 1 && cur_index < hex_str.size()) {
+        unit = 0;
+        for (size_t unit_index=cur_index-unit_char_len + 1; unit_index <= cur_index; unit_index++) {
+            cur_chr = hex_str[unit_index];
+            unit = (unit << 4) + ((cur_chr <= '9') ? (cur_chr - '0') : (cur_chr - 'a' + 0xa));
         }
-
-        cur_chr = (*hex_str)[cur_index];
-        unit = (unit << 4) + ((cur_chr <= '9') ? (cur_chr - '0') : (cur_chr - 'a' + 0xa));
-        cur_index ++;      
-        unit_cnt++;
+        data->push_back(unit); 
+        cur_index = cur_index - unit_char_len;
     }
 
-    if (unit_cnt) {
+    if (cur_index < unit_char_len - 1) {
+        unit = 0;
+        for (size_t unit_index=0; unit_index <= cur_index; unit_index++) {
+            cur_chr = hex_str[unit_index];
+            unit = (unit << 4) + ((cur_chr <= '9') ? (cur_chr - '0') : (cur_chr - 'a' + 0xa));
+        }
         data->push_back(unit);
     }
+     
     this->is_positive = is_positive;
     this->data = data;
 }

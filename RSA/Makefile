@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++17 -O3
+CXXFLAGS := -Wall -Wextra -std=c++17 -O3 --static
 
 SRC_DIR := src
 BUILD_DIR := bin
