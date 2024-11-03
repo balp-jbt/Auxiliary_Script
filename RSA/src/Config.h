@@ -34,11 +34,10 @@
 #include <stdexcept>
 #include <sstream>
 #include <fstream>
-
-#ifdef DEBUG_MODE_ON
+#include <unordered_map>
+#include <chrono>
 #include <iostream>
 #include <iomanip>
-#endif
 
 using std::vector;
 using std::string;
@@ -46,8 +45,6 @@ using std::pair;
 using std::make_pair;
 using std::runtime_error;
 using std::ostringstream;
-
-#ifdef DEBUG_MODE_ON
 using std::cout;
 using std::cin;
 using std::endl;
@@ -58,7 +55,10 @@ using std::setfill;
 using std::ofstream;
 using std::ifstream;
 using std::getline;
-#endif
+using std::unordered_map;
+using std::chrono::high_resolution_clock;
+using std::chrono::duration;
+using std::to_string;
 
 // typedef uint64_t mult_t;
 // typedef uint32_t base_t;
@@ -83,15 +83,13 @@ inline std::ostream& operator<<(std::ostream& os, __uint128_t value) {
 
 class Config {
 public:
-    static string mode;
-    static size_t key_len;
-    static string pub_key_path;
-    static string priv_key_path;
-    static string data_in_path;
-    static string data_out_path;
 
-    Config(int argc, char* argv[]);
+    static unordered_map<string, string> options;
 
+    static void load_args(int argc, char* argv[]);
 
+    static bool check_opt(string target1, string target2);
+
+    static string get_opt(string target1, string target2, bool force);
 };
 #endif

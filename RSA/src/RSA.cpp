@@ -1,7 +1,5 @@
 #include "RSA.h"
 
-RSA::RSA() {}
-
 void RSA::generate_key(size_t bit_len, string path_pub, string path_priv) {
     BigInt* p = BigInt::generate_prime(bit_len / 2);
     BigInt* q = BigInt::generate_prime(bit_len / 2);
@@ -31,9 +29,9 @@ void RSA::generate_key(size_t bit_len, string path_pub, string path_priv) {
     public_key_file << BigInt::big_e.to_hex() << endl;
     public_key_file << n->to_hex() << endl;
     // uncomment this to get primes and phi
-    public_key_file << "[prime1] " << p->to_hex() << endl;
-    public_key_file << "[prime2] " << q->to_hex() << endl;
-    public_key_file << "[phi_n] " << phi_n->to_hex() << endl;
+    // public_key_file << "[prime1] " << p->to_hex() << endl;
+    // public_key_file << "[prime2] " << q->to_hex() << endl;
+    // public_key_file << "[phi_n] " << phi_n->to_hex() << endl;
     public_key_file.close();
     return;
 }
@@ -43,7 +41,7 @@ BigInt* RSA::handle_unit(BigInt* key_e, BigInt* key_p, BigInt* target) {
     return res;
 }
 
-void RSA::encrypt(string pub_key_path, string plain_context_path, string out_path) {
+void RSA::encrypt(bool mode, string pub_key_path, string priv_key_path, string plain_context_path, string out_path) {
     ifstream pub_key_file(pub_key_path);
      if (! pub_key_file) {
         throw runtime_error("Error in opening target file!\n");
@@ -59,13 +57,25 @@ void RSA::encrypt(string pub_key_path, string plain_context_path, string out_pat
         throw runtime_error("Error in opening target file!\n");
     }
 
-    string key_1, key_2;
+    string key_1, key_2, key_3;
     getline(pub_key_file, key_1);
     getline(pub_key_file, key_2);
     pub_key_file.close();
 
+    if (!mode) {
+        ifstream priv_key_file(priv_key_path);
+        if (! priv_key_file) {
+            throw runtime_error("Error in opening target file!\n");
+        }
+        getline(priv_key_file, key_3);
+        priv_key_file.close();
+    }
+
+
     BigInt* pub_key_e = new BigInt(key_1);
     BigInt* pub_key_p = new BigInt(key_2);
+    BigInt* priv_key = new BigInt(key_3);
+
     size_t key_len = key_2.size();
     size_t unit_byte_size = (key_len / 8) - 11;
     vector<BigInt*> res;
@@ -81,7 +91,13 @@ void RSA::encrypt(string pub_key_path, string plain_context_path, string out_pat
         string hex_target = hexStream.str();
         BigInt* target = new BigInt(hex_target);
         
-        BigInt* encrypted_unit =  handle_unit(pub_key_e, pub_key_p, target);
+        BigInt* encrypted_unit;
+        if (mode) {
+            encrypted_unit =  handle_unit(pub_key_e, pub_key_p, target);
+        } else {
+            encrypted_unit =  handle_unit(priv_key, pub_key_p, target);
+        }
+        
         res.push_back(encrypted_unit);
     }
 
@@ -91,16 +107,14 @@ void RSA::encrypt(string pub_key_path, string plain_context_path, string out_pat
     res_file.close();
     delete pub_key_e;
     delete pub_key_p;
+    delete priv_key;
+    
     return;
 }
 
-void RSA::decrypt(string pub_key_path, string priv_key_path, string cipher_context_path, string out_path) {
+void RSA::decrypt(bool mode, string pub_key_path, string priv_key_path, string cipher_context_path, string out_path) {
     ifstream pub_key_file(pub_key_path);
      if (! pub_key_file) {
-        throw runtime_error("Error in opening target file!\n");
-    }
-    ifstream priv_key_file(priv_key_path);
-    if (! priv_key_file) {
         throw runtime_error("Error in opening target file!\n");
     }
 
@@ -117,21 +131,35 @@ void RSA::decrypt(string pub_key_path, string priv_key_path, string cipher_conte
     string key_1, key_2, key_3;
     getline(pub_key_file, key_1);
     getline(pub_key_file, key_2);
-    getline(priv_key_file, key_3);
+    pub_key_file.close();
+    
+    if (mode) {
+        ifstream priv_key_file(priv_key_path);
+        if (! priv_key_file) {
+            throw runtime_error("Error in opening target file!\n");
+        }
+        getline(priv_key_file, key_3);
+        priv_key_file.close();
+    }
 
+
+    BigInt* pub_key_e = new BigInt(key_1);
     BigInt* pub_key_p = new BigInt(key_2);
     BigInt* priv_key = new BigInt(key_3);
     
-    pub_key_file.close();
-    priv_key_file.close();
-
     string line_cipher;
     BigInt* unit_cipher;
     BigInt* unit_res;
     ostringstream res;
     while (getline(cipher_context_file, line_cipher)) {
         unit_cipher = new BigInt(line_cipher);
-        unit_res = handle_unit(priv_key, pub_key_p, unit_cipher);
+
+        if (mode) {
+            unit_res = handle_unit(priv_key, pub_key_p, unit_cipher);
+        } else {
+            unit_res = handle_unit(pub_key_e, pub_key_p, unit_cipher);
+        }
+        
         string inner_res = unit_res->to_hex();
         if (inner_res.size() % 2) {
             inner_res = "0" + inner_res;
@@ -143,8 +171,10 @@ void RSA::decrypt(string pub_key_path, string priv_key_path, string cipher_conte
         }
     }
     
+    delete pub_key_e;
     delete pub_key_p;
     delete priv_key;
+    
     cipher_context_file.close();
     out_file << res.str();
     out_file.close();

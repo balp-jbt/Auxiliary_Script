@@ -7,16 +7,15 @@ class RSA{
 
 public:
 
-    RSA();
-
     static BigInt* handle_unit(BigInt* key_e, BigInt* key_p, BigInt* target);
 
-    static void encrypt(string pub_key_path = "./id_rsa.pub", string plain_context_path = "./plain_context", string out_path = "./cipher_context");
+    // mode = true for encrypt by pub_key, otherwise by priv_key(sign)
+    static void encrypt(bool mode, string pub_key_path, string priv_key_path, string plain_context_path, string out_path);
 
-    static void decrypt(string pub_key_path = "./id_rsa.pub", string priv_key_path = "./id_rsa", string cipher_context_path = "./cipher_context", string out_path = "./decrypt_context");
+    // mode = true for decrypt by priv_key, otherwise by pub_key(verify)
+    static void decrypt(bool mode, string pub_key_path, string priv_key_path, string cipher_context_path, string out_path);
     
-    static void generate_key(size_t bit_len = 1024, string path_pub = "./id_rsa.pub", string path_priv = "./id_rsa");
-    
+    static void generate_key(size_t bit_len, string path_pub, string path_priv);
 };
 
 #endif
