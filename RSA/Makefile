@@ -8,7 +8,7 @@ SRC := $(wildcard $(SRC_DIR)/*.cpp)
 
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRC))
 
-TEST := $(BUILD_DIR)/test
+TEST := $(BUILD_DIR)/rsa
 
 all: $(TEST)
 

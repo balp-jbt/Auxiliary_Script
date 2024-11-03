@@ -80,4 +80,18 @@ inline std::ostream& operator<<(std::ostream& os, __uint128_t value) {
     return os;
 }
 
+
+class Config {
+public:
+    static string mode;
+    static size_t key_len;
+    static string pub_key_path;
+    static string priv_key_path;
+    static string data_in_path;
+    static string data_out_path;
+
+    Config(int argc, char* argv[]);
+
+
+};
 #endif

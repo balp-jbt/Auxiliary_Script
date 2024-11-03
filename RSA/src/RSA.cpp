@@ -82,7 +82,6 @@ void RSA::encrypt(string pub_key_path, string plain_context_path, string out_pat
         BigInt* target = new BigInt(hex_target);
         
         BigInt* encrypted_unit =  handle_unit(pub_key_e, pub_key_p, target);
-
         res.push_back(encrypted_unit);
     }
 
@@ -134,6 +133,9 @@ void RSA::decrypt(string pub_key_path, string priv_key_path, string cipher_conte
         unit_cipher = new BigInt(line_cipher);
         unit_res = handle_unit(priv_key, pub_key_p, unit_cipher);
         string inner_res = unit_res->to_hex();
+        if (inner_res.size() % 2) {
+            inner_res = "0" + inner_res;
+        }
         for (size_t i = 0; i < inner_res.size(); i += 2) {
             string byteString = inner_res.substr(i, 2);
             char byte = static_cast<char>(strtol(byteString.c_str(), nullptr, 16));
