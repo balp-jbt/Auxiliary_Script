@@ -8,6 +8,7 @@ import warnings
 import numpy as np
 import model
 import pickle
+import matplotlib.pyplot as plt
 
 warnings.filterwarnings('ignore')
 
@@ -36,6 +37,8 @@ class Trainer:
         return total_loss
 
     def train(self, setting):
+        loss_plot_data = []
+
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
@@ -65,6 +68,7 @@ class Trainer:
                 self.model.update_weights(lr, wd)
 
                 train_loss.append(loss)
+                loss_plot_data.append(loss)
 
                 if (i + 1) % 100 == 0:
                     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
@@ -91,6 +95,16 @@ class Trainer:
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(pickle.load(open(best_model_path, 'br')))
 
+        iterations = range(len(loss_plot_data))
+        plt.figure(figsize=(10, 6))
+        plt.plot(iterations, loss_plot_data, marker='o', markersize=1, color='b', linestyle='-', label='Loss')
+        plt.title('Loss Over Iterations')
+        plt.xlabel('Iterations')
+        plt.ylabel('Loss')
+        plt.xticks(range(0, len(loss_plot_data), 500))
+        plt.grid(True)
+        plt.legend()
+        plt.savefig("./loss.pdf")
         return self.model
 
     def test(self, setting, test=0):

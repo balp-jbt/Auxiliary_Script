@@ -53,15 +53,24 @@ class Model:
         #######################################
         # TODO: weight initialization
         # NOTE: proper initialization can be very important
-        self.w_s1 = None
-        self.b_s1 = None
-        self.w_s2 = None
-        self.b_s2 = None
+        self.w_s1 = np.random.normal(loc=0, scale=np.sqrt(2/self.seq_len), size=(self.seq_len, self.hidden))
+        self.b_s1 = np.zeros(self.hidden)
+        self.w_s2 = np.random.normal(loc=0, scale=np.sqrt(2/self.hidden), size=(self.hidden, self.pred_len))
+        self.b_s2 = np.zeros(self.pred_len)
+        self.w_t1 = np.random.normal(loc=0, scale=np.sqrt(2/self.seq_len), size=(self.seq_len, self.hidden))
+        self.b_t1 = np.zeros(self.hidden)
+        self.w_t2 = np.random.normal(loc=0, scale=np.sqrt(2/self.hidden), size=(self.hidden, self.pred_len))
+        self.b_t2 = np.zeros(self.pred_len)
 
-        self.w_t1 = None
-        self.b_t1 = None
-        self.w_t2 = None
-        self.b_t2 = None
+        self.momentum_w_s1 = 0
+        self.momentum_b_s1 = 0
+        self.momentum_w_s2 = 0
+        self.momentum_b_s2 = 0
+
+        self.momentum_w_t1 = 0
+        self.momentum_b_t1 = 0
+        self.momentum_w_t2 = 0
+        self.momentum_b_t2 = 0
         #######################################
 
         # Reset gradients
@@ -91,9 +100,14 @@ class Model:
         trend_init = np.transpose(trend_init, (0, 2, 1)).reshape(-1, self.seq_len)
 
         #######################################
-        # TODO: forward pass
-        seasonal_output = None
-        trend_output = None
+        # TODO: forward pass            
+        hidden_s_z = np.matmul(seasonal_init, self.w_s1) + np.tile(self.b_s1, (seasonal_init.shape[0], 1))
+        hidden_s_a = np.maximum(hidden_s_z, 0)
+        seasonal_output = np.matmul(hidden_s_a, self.w_s2) + np.tile(self.b_s2, (hidden_s_a.shape[0], 1))
+
+        hidden_t_z = np.matmul(trend_init, self.w_t1) + np.tile(self.b_t1, (trend_init.shape[0], 1))
+        hidden_t_a = np.maximum(hidden_t_z, 0)
+        trend_output = np.matmul(hidden_t_a, self.w_t2) + np.tile(self.b_t2, (hidden_t_a.shape[0], 1))
         #######################################
 
         # Compose seasonal and trend components
@@ -103,16 +117,32 @@ class Model:
 
         #######################################
         # TODO: calculate MSE loss
-        loss = None
+        delta_mat = np.transpose((pred - y), (0, 2, 1)).reshape(-1, self.pred_len)
+        loss = np.sum((delta_mat)**2) / delta_mat.size
         #######################################
 
         if not forward_only:
             #######################################
             # TODO: backward pass
-            self.w_s1_grad, self.b_s1_grad = None, None
-            self.w_s2_grad, self.b_s2_grad = None, None
-            self.w_t1_grad, self.b_t1_grad = None, None
-            self.w_t2_grad, self.b_t2_grad = None, None
+            loss_div_z2_s = delta_mat * 2 / delta_mat.size
+            self.w_s2_grad = np.matmul(np.transpose(hidden_s_a), loss_div_z2_s)
+            self.b_s2_grad = np.sum(loss_div_z2_s, axis=0) # WHY THIS?
+
+            a2_s = np.matmul(loss_div_z2_s, np.transpose(self.w_s2))
+            loss_div_z1_s = np.where(hidden_s_z <= 0, 0, a2_s)  # [Here I made a mistake!]
+            self.w_s1_grad = np.matmul(np.transpose(seasonal_init), loss_div_z1_s)
+            self.b_s1_grad = np.sum(loss_div_z1_s, axis=0)
+
+            # ------------------------------
+
+            loss_div_z2_t = delta_mat * 2 / delta_mat.size
+            self.w_t2_grad=  np.matmul(np.transpose(hidden_t_a), loss_div_z2_t)
+            self.b_t2_grad = np.sum(loss_div_z2_t, axis=0)
+
+            a2_t = np.matmul(loss_div_z2_t, np.transpose(self.w_t2))
+            loss_div_z1_t = np.where(a2_t <= 0, 0, a2_t)
+            self.w_t1_grad = np.matmul(np.transpose(trend_init), loss_div_z1_t)
+            self.b_t1_grad = np.sum(loss_div_z1_t, axis=0)
             #######################################
 
         return pred, loss
@@ -128,7 +158,12 @@ class Model:
 
         #######################################
         # TODO: gradient descent
-        pass
+        self.beta = 0
+        for (_grad, _param, _momentum) in [(self.w_s1_grad, self.w_s1, self.momentum_w_s1), (self.b_s1_grad, self.b_s1, self.momentum_b_s1), (self.w_s2_grad, self.w_s2, self.momentum_w_s2),
+                                 (self.b_s2_grad, self.b_s2, self.momentum_b_s2), (self.w_t1_grad, self.w_t1, self.momentum_w_t1), (self.b_t1_grad, self.b_t1, self.momentum_b_t1),
+                                   (self.w_t2_grad, self.w_t2, self.momentum_w_t2), (self.b_t2_grad, self.b_t2, self.momentum_b_t2)]:
+            _momentum = self.beta * _momentum + (1 - self.beta) * _grad
+            _param[:] = _param - lr * (_momentum + weight_decay * _param)
         #######################################
 
     def state_dict(self):
