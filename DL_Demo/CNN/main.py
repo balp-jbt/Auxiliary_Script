@@ -22,6 +22,7 @@ def run(model, train_set, valid_set, test_set, criterion, optimizer, scheduler, 
         total_loss = 0.0
 
         bar = tqdm(train_loader, desc='train')
+        i = 0
         for inputs, labels in bar:
             inputs = inputs.to(device)
             labels = labels.to(device)
@@ -30,13 +31,23 @@ def run(model, train_set, valid_set, test_set, criterion, optimizer, scheduler, 
 
             labels = labels.squeeze().long()
             loss = criterion(outputs, labels)
+            writer.add_scalar('Loss/train', loss.item(), epoch * len(train_loader) + i)
+            _, predicted = torch.max(outputs, 1)
+            correct = (predicted == labels).sum().item()
+            total = labels.size(0)
+            train_accuracy = correct / total
+            writer.add_scalar('ACC/train', train_accuracy,  epoch * len(train_loader) + i)
+
 
             loss.backward()
             optimizer.step()
 
             total_loss += loss.item() * inputs.size(0)
             bar.set_postfix(loss=loss.item())
+            i += 1
+
         epoch_loss = total_loss / len(train_loader.dataset)
+        train_accuracy = correct / total
         return epoch_loss
 
     def valid_or_test(model, valid_loader, split):
@@ -50,6 +61,9 @@ def run(model, train_set, valid_set, test_set, criterion, optimizer, scheduler, 
             outputs = model(inputs)
             
             labels = labels.squeeze().long()
+
+            loss = criterion(outputs, labels)
+
             outputs = outputs.softmax(dim=-1)
             labels = labels.float().resize_(len(labels), 1)
 
@@ -58,7 +72,6 @@ def run(model, train_set, valid_set, test_set, criterion, optimizer, scheduler, 
             y_score = torch.cat((y_score, outputs.cpu()), 0)
         
         scheduler.step()
-
         y_true = y_true.numpy()
         y_score = y_score.detach().numpy()
         
@@ -66,7 +79,7 @@ def run(model, train_set, valid_set, test_set, criterion, optimizer, scheduler, 
         metrics = evaluator.evaluate(y_score)
     
         
-        return metrics[0], metrics[1]
+        return metrics[0], metrics[1], loss
 
     best_acc = 0.0
     if not exists(save_dir):
@@ -77,15 +90,16 @@ def run(model, train_set, valid_set, test_set, criterion, optimizer, scheduler, 
         train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=10)
         train_loss = train(model, train_loader, optimizer, criterion)
         print("training: {:.4f}".format(train_loss))
-        writer.add_scalar('Loss/train', train_loss, epoch)
+        
 
 
         valid_loader = torch.utils.data.DataLoader(valid_set, batch_size=batch_size, shuffle=False, num_workers=10)
         with torch.no_grad():
-            val_auc, val_acc = valid_or_test(model, valid_loader, 'val')
+            val_auc, val_acc, loss = valid_or_test(model, valid_loader, 'val')
         print('valid auc: %.3f  acc:%.3f' % (val_auc, val_acc))
         writer.add_scalar('AUC/validation', val_auc, epoch)
         writer.add_scalar('ACC/validation', val_acc, epoch)
+        writer.add_scalar('Loss/validation', loss, epoch)
         
         print()
         if val_acc > best_acc:
@@ -94,8 +108,8 @@ def run(model, train_set, valid_set, test_set, criterion, optimizer, scheduler, 
 
     test_loader = torch.utils.data.DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=10)
     with torch.no_grad():
-        test_auc, test_acc = valid_or_test(model, test_loader, 'test')
-    print('test auc: %.3f  acc:%.3f' % (test_auc, test_acc))
+        test_auc, test_acc, loss = valid_or_test(model, test_loader, 'test')
+    print('test auc: %.3f  acc:%.3f  loss:%.3f' % (test_auc, test_acc, loss))
         
     torch.save(best_model, os.path.join(save_dir, 'best_model.pt'))
 
@@ -106,7 +120,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # data preparation
-    writer = SummaryWriter('./') 
+    writer = SummaryWriter('./log') 
 
     data_flag = 'pathmnist'
     download = False
@@ -128,7 +142,7 @@ if __name__ == '__main__':
     test_dataset = DataClass(root=data_path, split='test', transform=data_transform, size=64, download=download)
 
     # about training
-    num_epochs = 5
+    num_epochs = 50
     lr = 0.001
     batch_size = 64
 
