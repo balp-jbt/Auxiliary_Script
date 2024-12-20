@@ -50,7 +50,7 @@ func P1(x uint32) uint32 {
 	return x ^ Rotate_Left_Shift(x, 15) ^ Rotate_Left_Shift(x, 23)
 }
 
-func pad_message(message []byte) []byte {
+func Pad_Message(message []byte) []byte {
 	message_len := len(message) * 8
 	remain_len := message_len % 512
 	var k int
@@ -75,15 +75,15 @@ func pad_message(message []byte) []byte {
 		message = append(message, 0x00)
 	}
 
-	lengthBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(lengthBytes, uint64(message_len))
-	message = append(message, lengthBytes...)
+	length_bits := make([]byte, 8)
+	binary.BigEndian.PutUint64(length_bits, uint64(message_len))
+	message = append(message, length_bits...)
 
 	return message
 }
 
 // 68 is W, 64 is W'
-func extend_message(block []byte) ([68]uint32, [64]uint32) {
+func Extend_Message(block []byte) ([68]uint32, [64]uint32) {
 	var W_1st [68]uint32
 	var W_2nd [64]uint32
 
@@ -104,7 +104,7 @@ func extend_message(block []byte) ([68]uint32, [64]uint32) {
 }
 
 func CF(V [8]uint32, block []byte) [8]uint32 {
-	W_1st, W_2nd := extend_message(block)
+	W_1st, W_2nd := Extend_Message(block)
 
 	A, B, C, D, E, F, G, H := V[0], V[1], V[2], V[3], V[4], V[5], V[6], V[7]
 
@@ -129,20 +129,4 @@ func CF(V [8]uint32, block []byte) [8]uint32 {
 		V_new[i] = V[i] ^ [8]uint32{A, B, C, D, E, F, G, H}[i]
 	}
 	return V_new
-}
-
-func SM3Hash(message []byte) [32]byte {
-	message = pad_message(message)
-	var V = IV
-
-	for i := 0; i < len(message); i += 64 {
-		block := message[i : i+64]
-		V = CF(V, block)
-	}
-
-	var result [32]byte
-	for i, v := range V {
-		binary.BigEndian.PutUint32(result[i*4:(i+1)*4], v)
-	}
-	return result
 }

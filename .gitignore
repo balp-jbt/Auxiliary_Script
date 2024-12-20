@@ -1,9 +1,14 @@
 *.o
 *.bin
 *.exe
+*.npz
+
 .vscode
 .VSCodeCounter
 
+/DL_Demo
 /tmp
-/RSA/build
-RSA/test.py
+/Crypto_Algorithm/RSA/bin
+/Crypto_Algorithm/SM3/main
+/Paper_Note
+/Schedule
