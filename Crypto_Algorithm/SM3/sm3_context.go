@@ -67,8 +67,8 @@ func (ctx *SM3Context) Final() [32]byte {
 	} else {
 		k = 960 - (int(remain_len) + 1)
 	}
-
-	padding := make([]byte, k/8)
+	k++
+	padding := make([]byte, k/8-1)
 	final_ctx.buffer = append(final_ctx.buffer, padding...)
 
 	length_bits := make([]byte, 8)
